@@ -1,0 +1,9 @@
+{
+  "presets": [
+    ["@babel/preset-env", { "modules": false }],  // No queremos que Babel transforme los módulos
+    "@babel/preset-react"
+  ],
+  "plugins": [
+    ["@babel/plugin-proposal-decorators", { "legacy": true }]
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "label": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "farm": "Farm",
+    "redeem": "Redeem",
+    "pay": "Pay"
+  },
+  "wallet": {
+    "invalid-network": "This token is not compatible with the selected network.",
+    "select-op" : "Please select the OPTIMISM network",
+    "select-eth" : "Please select the Ethereum mainnet",
+    "select-sepolia-op" : "Please select the OP Sepolia network",
+    "select-button" : "Select network",
+    "email": "Email",
+    "your-email": "Your email",
+    "connect": "Connect wallet",
+    "invalid-amount": "Invalid Amount",
+    "invalid-trade": "Invalid Trade",
+    "no-allowance": "Set Allowance to Continue",
+    "no-eth": "Not Enough ETH to Pay Gas",
+    "no-tokens": "Not Enough of Selected Token",
+    "not-available": "Not available",
+    "unknown-error": "Unknown Error",
+    "loading": "Loading...",
+    "waiting-confirmation": "Waiting for confirmation",
+    "buy-wine": "Buy Wine",
+    "sell-wine": "Sell Wine",
+    "pay": "Pay",
+    "sell": "Sell",
+    "crowdsale": "Crowdsale",
+    "available": "Available",
+    "pending-transaction": "Your transaction is pending",
+    "view-etherscan": "View on Etherscan.",
+    "what-to-receive": "What token do you want to receive?",
+    "what-to-pay": "How do you want to pay?",
+    "unlock": "Unlock",
+    "unlock-token": "Unlocked Token!",
+    "you-got-tokens": "You got {{amount}} {{token}}!",
+    "transaction-details": "Transaction Details",
+    "redeem-token": "Redeem {{token}}",
+    "redeem-your-token": "Redeem your {{token}} now",
+    "sold-wine": "You sold wine!",
+    "browser-wallet": "Browser Wallet",
+    "wallet-connect": "Wallet Connect",
+    "scan-to-connect": "Scan to connect",
+    "learn-more": "Learn more",
+    "dont-have-one": "Don't have one?",
+    "connection-error": "Connection Error",
+    "you-own": "You own {{amount}}",
+    "redeem-message": "You can redeem your {{token}} tokens for bottles of wine, starting on {{date}}."
+  },
+  "info": {
+    "1": "How it works:",
+    "2": "One {{token}} token entitles you to one bottle of delicious organic Argentine wine (Mike Tango Bravo {{year}} - a blend of Malbec / Petit Verdot / Cabernet Sauvignon) from <0>Costaflores Organic Vineyard.</0>",
+    "3": "Watch <0>here</0> to understand how the entire <1>OpenVino</1> process works.",
+    "4": "You can sell the token back at any time, and beginning on {{date}}, you can redeem your {{token}} token for 1 bottle of wine.",
+    "5": "How it is priced:",
+    "6": "Each buy/sell will move the price. The increase or decrease follows the Uniswap bonding curve. So, the price of our wines are defined by supply and demand, and the valuation changes over time... <0>like a fine wine</0>!",
+    "7": "Learn more about how Uniswap works. ",
+    "8": "See the inner workings of the OpenVino project.",
+    "9": "Join our Telegram group.",
+    "10": "Get in touch."
+  },
+  "redeem": {
+    "name": "Name",
+    "line1": "Street Address",
+    "line2": "Unit",
+    "city": "City",
+    "state": "State",
+    "zip": "ZIP",
+    "country": "Country",
+    "email": "Email",
+    "address": "Ethereum Address",
+    "timestamp": "Time",
+    "numberBurned": "Token Redeemed",
+    "telegram": "Telegram ID",
+    "next": "Next",
+    "shipping-cost": "Calculated shipping costs",
+    "place-order": "Place order",
+    "you-got-wine": "You got wine!",
+    "estimated-time": "Estimated shipping time 2-3 weeks. Shipping time will vary by region.",
+    "burn": "Burn",
+    "transfer-shipping-costs": "Transfer shipping costs",
+    "countries": {
+      "1": {
+        "name": "España",
+        "province": {
+          "1": "Catalunya",
+          "2": "Madrid",
+          "3": "Aragón"
+        }
+      },
+      "2": {
+        "name": "Argentina",
+        "province": {
+          "1": "Mendoza"
+        }
+      }
+    }
+  }
+}
