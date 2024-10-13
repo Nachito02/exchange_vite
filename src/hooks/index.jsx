@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { client } from "../config/thirdwebClient";
 import { defineChain, optimismSepolia } from "thirdweb/chains";
-import {  useActiveAccount } from "thirdweb/react";
+import { useActiveAccount } from "thirdweb/react";
 import {
   isAddress,
   getTokenContract,
@@ -44,7 +44,7 @@ export function useCrowdsaleContract(
     } catch {
       return null;
     }
-  }, [account?.address,  crowdsaleAddress, withSignerIfPossible]);
+  }, [account?.address, crowdsaleAddress, withSignerIfPossible]);
 }
 
 export function useTokenContract(tokenAddress, withSignerIfPossible = true) {
@@ -163,7 +163,7 @@ export function usePairContract(tokenAddress, withSignerIfPossible = true) {
     } catch {
       return null;
     }
-  }, [  tokenAddress, withSignerIfPossible]);
+  }, [tokenAddress, withSignerIfPossible]);
 }
 
 export function useReserves(pairContract) {
@@ -234,7 +234,7 @@ export function useAddressBalance(address, tokenAddress) {
         setBalance();
       };
     }
-  }, [address,  tokenAddress]);
+  }, [address, tokenAddress]);
 
   useEffect(() => {
     return updateBalance();
@@ -331,7 +331,7 @@ export function useExchangeReserves(tokenAddress) {
 }
 
 export function useAddressAllowance(address, tokenAddress, spenderAddress) {
- 
+
 
   const library = ethers5Adapter.provider.toEthers({
     client,
@@ -365,7 +365,7 @@ export function useAddressAllowance(address, tokenAddress, spenderAddress) {
         setAllowance();
       };
     }
-  }, [address,  spenderAddress, tokenAddress]);
+  }, [address, spenderAddress, tokenAddress]);
 
   useEffect(() => {
     return updateAllowance();

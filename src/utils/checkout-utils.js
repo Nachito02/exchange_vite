@@ -29,8 +29,16 @@ export function validateBuyHelper(
     reserveSelectedTokenToken,
     selectedTokenSymbol
 ) {
-   
-    console.log('eskere');
+    
+    console.log( numberOfWINES,
+        allowanceSelectedToken,
+        balanceETH,
+        balanceSelectedToken,
+        reserveWINESETH,
+        reserveWINESToken,
+        reserveSelectedTokenETH,
+        reserveSelectedTokenToken,
+        selectedTokenSymbol);
     
     // validate passed amount
     let parsedValue
@@ -63,7 +71,9 @@ export function validateBuyHelper(
     // the following are 'non-breaking' errors that will still return the data
     let errorAccumulator
     // validate minimum ether balance
-    if (balanceETH && balanceETH.lt(ethers.utils.parseEther('.01'))) {
+
+    
+    if (balanceETH && balanceETH.lt(ethers.utils.parseEther('.001'))) {
         const error = Error()
         error.code = ERROR_CODES.INSUFFICIENT_ETH_GAS
         if (!errorAccumulator) {
@@ -91,8 +101,6 @@ export function validateBuyHelper(
         }
     }
 
-    
-
     return {
         inputValue: requiredValueInSelectedToken,
         maximumInputValue: maximum,
@@ -111,17 +119,11 @@ export async function buyHelper(
     tokenAddress
 ) {
     try {
-         console.log(routerContract);
-         
     const deadline = Math.ceil(Date.now() / 1000) + DEADLINE_FROM_NOW
-
     const estimatedGasPrice = await library
         .getGasPrice()
         .then(gasPrice => gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100)))
-
         let wethAddress;
-        
-
         if(getNetworkId() === 11155420 ) { 
             wethAddress = "0x74A4A85C611679B73F402B36c0F84A7D2CcdFDa3"
         } else if(getNetworkId() === 10) {
@@ -129,13 +131,10 @@ export async function buyHelper(
         } else if (getNetworkId() === 1) { 
             wethAddress = WETH[getNetworkId()].address
         }
-  
         
     const estimatedGasLimit = await routerContract.estimateGas.swapETHForExactTokens(outputValue, [ wethAddress, tokenAddress ], address, deadline, {
         value: maximumInputValue
     })
-
-    
 
     return routerContract.swapETHForExactTokens(outputValue, [ wethAddress, tokenAddress ], address, deadline, {
         value: maximumInputValue,
@@ -183,7 +182,7 @@ export function validateCrowdsaleHelper(
     // the following are 'non-breaking' errors that will still return the data
     let errorAccumulator
     // validate minimum ether balance
-    if (balanceETH && balanceETH.lt(ethers.utils.parseEther('.01'))) {
+    if (balanceETH && balanceETH.lt(ethers.utils.parseEther('.001'))) {
         const error = Error()
         error.code = ERROR_CODES.INSUFFICIENT_ETH_GAS
         if (!errorAccumulator) {
@@ -302,7 +301,7 @@ export function validateSellHelper(
     // the following are 'non-breaking' errors that will still return the data
     let errorAccumulator
     // validate minimum ether balance
-    if (balanceETH.lt(ethers.utils.parseEther('.01'))) {
+    if (balanceETH.lt(ethers.utils.parseEther('.001'))) {
         const error = Error()
         error.code = ERROR_CODES.INSUFFICIENT_ETH_GAS
         if (!errorAccumulator) {

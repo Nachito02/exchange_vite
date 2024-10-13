@@ -23,6 +23,8 @@ const initialState = {
   name:''
 }
 
+
+
 export default function AppProvider({ children, ...setupState }) {
   const [state, setState] = useState({
     ...initialState,

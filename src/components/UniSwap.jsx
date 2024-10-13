@@ -9,6 +9,7 @@ import Main from "./Main";
 
 import "../i18n";
 import { ThirdwebProvider } from "thirdweb/react";
+import { optimismSepolia } from "thirdweb/chains";
 
 class UniSwapModel extends DOMModel {
   @byAttrVal() title;
@@ -25,7 +26,6 @@ class UniSwapModel extends DOMModel {
   @byAttrVal() mapsapikey;
   @byAttrVal() shippingaccount;
   @byAttrVal() winerie_id;
-
 }
 
 function UniSwap({
@@ -42,15 +42,15 @@ function UniSwap({
   tokenicon,
   mapsapikey,
   shippingaccount,
-  winerie_id
+  winerie_id,
 }) {
-
-
   const redeemDate = new Date(redeemdate);
 
   useEffect(() => {
-    localStorage.setItem("uniswap.network", networkid);
-    localStorage.setItem("uniswap.token", tokenaddress);
+    if (networkid && tokenaddress) {
+      localStorage.setItem("uniswap.network", networkid);
+      localStorage.setItem("uniswap.token", tokenaddress);
+    }
   }, [networkid, tokenaddress]);
 
   if (
@@ -66,32 +66,35 @@ function UniSwap({
     !mapsapikey ||
     !shippingaccount
   ) {
-    return <div></div>;
+    return <div>Required data is missing. Please check the configuration.</div>;
   }
 
+  const connectionManager = {
+    defineChains: (chains) => {
+      chains.push(optimismSepolia);
+    },
+  };
+
   return (
-
     <ThirdwebProvider>
-    <AppProvider
-      title={title}
-      networkId={networkid}
-      tokenAddress={tokenaddress}
-      crowdsaleAddress={crowdsaleaddress}
-      redeemDate={redeemDate}
-      tokenYear={tokenyear}
-      tokenName={tokenname}
-      image={image}
-      tokenIcon={tokenicon}
-      apiUrl={apiurl}
-      mapsApiKey={mapsapikey}
-      shippingAccount={shippingaccount}
-      winerie_id={winerie_id}
-    >
-      <Main></Main>
-      
-    </AppProvider>
+      <AppProvider
+        title={title}
+        networkId={networkid}
+        tokenAddress={tokenaddress}
+        crowdsaleAddress={crowdsaleaddress}
+        redeemDate={redeemDate}
+        tokenYear={tokenyear}
+        tokenName={tokenname}
+        image={image}
+        tokenIcon={tokenicon}
+        apiUrl={apiurl}
+        mapsApiKey={mapsapikey}
+        shippingAccount={shippingaccount}
+        winerie_id={winerie_id}
+      >
+        <Main />
+      </AppProvider>
     </ThirdwebProvider>
-
   );
 }
 

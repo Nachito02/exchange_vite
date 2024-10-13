@@ -4,63 +4,24 @@ import { useAppContext } from "../context";
 import { TradeButtons } from "./shared/TradeButtons";
 import { BigNumber, ethers } from "ethers";
 import { useTranslation } from "react-i18next";
-import { useActiveAccount,useSendTransaction  } from "thirdweb/react";
+import { useActiveAccount } from "thirdweb/react";
 import { client } from "../config/thirdwebClient";
 import { optimismSepolia } from "thirdweb/chains";
 import {
-  TOKEN_SYMBOLS,
-  TOKEN_ADDRESSES,
-  TRADE_TYPES,
-  getExchangeRate,
-  getCrowdsaleContract,
-  calculateGasMargin,
-  amountFormatter,
-  getProviderOrSigner,
+  TOKEN_SYMBOLS, TOKEN_ADDRESSES, TRADE_TYPES, getExchangeRate, getCrowdsaleContract, calculateGasMargin, amountFormatter, getProviderOrSigner, getNetworkId,
 } from "../utils";
 import {
-  validateBuyHelper,
-  buyHelper,
-  validateCrowdsaleHelper,
-  crowdsaleHelper,
-  validateSellHelper,
-  sellHelper,
-  notifyBuyer,
+  validateBuyHelper, validateCrowdsaleHelper, validateSellHelper,
 } from "../utils/checkout-utils";
-
 import {
-  useTokenContract,
-  useExchangeContract,
-  useCrowdsaleContract,
-  useAddressBalance,
-  useAddressAllowance,
-  useExchangeReserves,
-  useRouterAllowance,
-  useTokenSupply,
-  useTokenCap,
-  usePairContract,
-  useReserves,
-  useRouterContract,
+  useTokenContract, useExchangeContract, useCrowdsaleContract, useAddressBalance, useAddressAllowance, useExchangeReserves, useRouterAllowance, useTokenSupply, useTokenCap, usePairContract, useReserves, useRouterContract,
 } from "../hooks";
 import Farming from "./farming/Farming";
 import { fetchPrice } from "../utils/fetchPrice";
 import {
-  CardWrapper,
-  Container,
-  CurrentPrice,
-  Farm,
-  Image,
-  ImageContainer,
-  InfoIcon,
-  // InfoIcon,
-  MarketData,
-  Redeem,
-  Title,
-  TokenIcon,
-  TokenIconContainer,
-  TokenIconText,
+  CardWrapper, Container, CurrentPrice, Farm, Image, ImageContainer, InfoIcon, MarketData, Redeem, Title, TokenIcon, TokenIconContainer, TokenIconText,
 } from "../styles";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
-import { getContract, prepareContractCall } from "thirdweb";
 
 export default function Main() {
 
@@ -134,8 +95,7 @@ export default function Main() {
   // const reserveWINESETH = useReserves(pairMTBwETH)["1"];
   // const reserveWINESToken = useReserves(pairMTBwETH)["0"];
 
-  // console.log("reserveWINESETH", reserveWINESETH);
-  // console.log("reserveWINESToken", reserveWINESToken);
+
   const {
     reserveETH: reserveSelectedTokenETH,
     reserveToken: reserveSelectedTokenToken,
@@ -283,8 +243,6 @@ export default function Main() {
 
   //Pool price
   useEffect(() => {
-    console.log(reserveWINESToken?.toString(),reserveWINESETH?.toString());
-
     try {
       const WINESExchangeRateETH = getExchangeRate(
         reserveWINESToken,
@@ -302,20 +260,22 @@ export default function Main() {
 
   async function unlock(buyingWINES = true) {
 
-    console.log("eskereee");
-    
     const contract = buyingWINES
       ? tokenContractSelectedToken
       : tokenContractWINES;
     const spenderAddress = buyingWINES
       ? exchangeContractSelectedToken.address
       : routerContract.address;
-      
 
-    const estimatedGasLimit = await contract.estimate.approve(
+    console.log("Unlocking...", tokenContractSelectedToken, tokenContractWINES, contract);
+
+
+    const estimatedGasLimit = await contract.estimateGas.approve(
       spenderAddress,
       ethers.constants.MaxUint256
     );
+
+
     const estimatedGasPrice = await library
       .getGasPrice()
       .then((gasPrice) =>
@@ -323,6 +283,8 @@ export default function Main() {
           .mul(BigNumber.from(150))
           .div(BigNumber.from(100))
       );
+
+    console.log(estimatedGasPrice);
 
     return contract.approve(spenderAddress, ethers.constants.MaxUint256, {
       gasLimit: calculateGasMargin(estimatedGasLimit),
@@ -357,39 +319,7 @@ export default function Main() {
     ]
   );
 
-  async function buy(maximumInputValue, outputValue) {
-    
-    if (state.emailValid) {
 
-
- 
-
-      let response = await buyHelper(
-        account?.address,
-        maximumInputValue,
-        outputValue,
-        selectedTokenSymbol,
-        library,
-        routerContract,
-        state.tokenAddress
-      );
-
-
-
-
-      await notifyBuyer(
-        state.apiUrl,
-        state.count,
-        account?.address,
-        state.email,
-        state.winerie_id,
-        state.name
-      );
-      return response;
-    } else {
-      throw new Error("Invalid email");
-    }
-  }
 
   // crowdsale functionality
   const validateCrowdsale = useCallback(
@@ -412,31 +342,7 @@ export default function Main() {
     ]
   );
 
-  async function crowdsale(maximumInputValue, outputValue) {
-    if (state.emailValid) {
-      let response = await crowdsaleHelper(
-        maximumInputValue,
-        outputValue,
-        selectedTokenSymbol,
-        library,
-        account?.address,
-        getCrowdsaleContract(state.crowdsaleAddress, library, account?.address)
-      );
 
-      await notifyBuyer(
-        state.apiUrl,
-        state.count,
-        account?.address,
-        state.email,
-        state.winerie_id,
-        state.name
-      );
-
-      return response;
-    } else {
-      throw new Error("Invalid email");
-    }
-  }
 
   // sell functionality
   const validateSell = useCallback(
@@ -465,17 +371,7 @@ export default function Main() {
     ]
   );
 
-  async function sell(inputValue, minimumOutputValue) {
-    return sellHelper(
-      account?.address,
-      inputValue,
-      minimumOutputValue,
-      selectedTokenSymbol,
-      library,
-      routerContract,
-      state.tokenAddress
-    );
-  }
+
 
   async function transferShippingCosts(amount) {
     let signer = getProviderOrSigner(library, account?.address);
@@ -536,6 +432,8 @@ export default function Main() {
 
   return (
     <Container>
+
+
       <CardWrapper>
         <div>
           <Farm onClick={openFarm}> {t("labels.farm")} </Farm>
@@ -591,11 +489,8 @@ export default function Main() {
         ready={ready}
         unlock={unlock}
         validateBuy={validateBuy}
-        buy={buy}
         validateSell={validateSell}
-        sell={sell}
         validateCrowdsale={validateCrowdsale}
-        crowdsale={crowdsale}
         burn={burn}
         balanceWINES={balanceWINES}
         dollarPrice={dollarPrice}

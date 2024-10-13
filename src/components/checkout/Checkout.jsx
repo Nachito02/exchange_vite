@@ -94,6 +94,7 @@ export default function Checkout({
   showConnect,
   showWorks,
   setShowWorks,
+  updateBalance
 }) {
   const library = ethers5Adapter.provider.toEthers({
     client,
@@ -192,6 +193,7 @@ export default function Checkout({
             dollarPrice={dollarPrice}
             reserveWINESToken={reserveWINESToken}
             pending={pending}
+            updateBalance={updateBalance}
           />
         );
       } else {

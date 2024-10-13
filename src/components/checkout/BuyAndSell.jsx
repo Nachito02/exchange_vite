@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { client } from "../../config/thirdwebClient";
 import { defineChain, optimismSepolia } from "thirdweb/chains";
-import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { ConnectButton, ConnectEmbed, TransactionButton, useActiveAccount, useReadContract } from "thirdweb/react";
 import { useTranslation } from "react-i18next";
 import Form from "./Form";
 import SelectToken from "../shared/SelectToken";
@@ -28,80 +28,23 @@ import {
   WineTitle,
   Wrapper,
 } from "../../styles";
-import { ethers } from "ethers";
 import EstimateGas from "../estimateGas/EstimateGas";
+import { getContract, prepareContractCall, toWei } from "thirdweb";
+import contractABI from '../../contracts/router.json';
+import crowdsaleABI from '../../contracts/crowdsale.json';
+import ERC20ABI from '../../contracts/erc20.json';
 
+
+import { ethers } from "ethers";
+import { notifyBuyer } from "../../utils/checkout-utils";
+import { useExchangeContract, useRouterContract } from "../../hooks";
 
 export function Account({ ready, balanceWINES, setShowConnect }) {
   const account = useActiveAccount();
   const [state] = useAppContext();
-
   const { t } = useTranslation();
-
-  async function changeNetwork(networkId) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-    const networks = {
-      1: {
-        chainId: '0x1',
-        chainName: 'Ethereum Mainnet',
-        nativeCurrency: {
-          name: 'Ether',
-          symbol: 'ETH',
-          decimals: 18
-        },
-        rpcUrls: ['https://mainnet.infura.io/v3/'],
-        blockExplorerUrls: ['https://etherscan.io']
-      },
-      10: {
-        chainId: '0xa',
-        chainName: 'Optimism',
-        nativeCurrency: {
-          name: 'Ether',
-          symbol: 'ETH',
-          decimals: 18
-        },
-        rpcUrls: ['https://optimism-mainnet.infura.io/v3/'],
-        blockExplorerUrls: ['https://optimistic.etherscan.io']
-      },
-      sepolia: {
-        chainId: '0xaa37dc',
-        chainName: 'Sepolia OP',
-        nativeCurrency: {
-          name: 'Ether',
-          symbol: 'ETH',
-          decimals: 18
-        },
-        rpcUrls: ['https://optimism-sepolia.infura.io/v3'],
-        blockExplorerUrls: ['https://optimistic.etherscan.io']
-      },
-    };
-
-    try {
-      await provider.send("wallet_switchEthereumChain", [{ chainId: networks[networkId].chainId }]);
-    } catch (switchError) {
-      if (switchError.code === 4902) {
-        try {
-          await provider.send("wallet_addEthereumChain", [networks[networkId]]);
-        } catch (addError) {
-          console.error('Error al agregar la red:', addError);
-        }
-      }
-    }
-  }
-
-  async function handleAccount() {
-    await changeNetwork(getNetworkId());
-    //change network id
-    setConnector("Injected", { suppressAndThrowErrors: true }).catch(
-      (error) => {
-        setShowConnect(true);
-      }
-    );
-  }
-
   return (
-    <Connect onClick={() => handleAccount()} balanceWINES={balanceWINES}>
+    <>
       {account ? (
         balanceWINES > 0 ? (
           <WineCount>
@@ -116,7 +59,7 @@ export function Account({ ready, balanceWINES, setShowConnect }) {
       )}
 
       <Status balanceWINES={balanceWINES} ready={ready} account={account} />
-    </Connect>
+    </>
   );
 }
 
@@ -178,9 +121,7 @@ export default function BuyAndSell({
   ready,
   unlock,
   validateBuy,
-  buy,
   validateSell,
-  sell,
   validateCrowdsale,
   crowdsale,
   dollarPrice,
@@ -206,18 +147,7 @@ export default function BuyAndSell({
   const [crowdsaleValidationState, setCrowdsaleValidationState] = useState({}); // { inputValue, outputValue, minimumOutputValue }
   const [validationError, setValidationError] = useState();
 
-  function link(hash) {
-    switch (parseInt(state.networkId)) {
-      case 3:
-        return `https://ropsten.etherscan.io/tx/${hash}`;
-      case 4:
-        return `https://rinkeby.etherscan.io/tx/${hash}`;
-      case 10:
-        return `https://optimistic.etherscan.io/tx/${hash}`;
-      default:
-        return `https://etherscan.io/tx/${hash}`;
-    }
-  }
+
 
   function getText(account, errorMessage, ready, pending, hash) {
     if (account === null) {
@@ -244,6 +174,21 @@ export default function BuyAndSell({
       }
     } else {
       return errorMessage ? t(errorMessage) : t("wallet.loading");
+    }
+  }
+
+  function link(hash) {
+    switch (parseInt(state.networkId)) {
+      case 3:
+        return `https://ropsten.etherscan.io/tx/${hash}`;
+      case 4:
+        return `https://rinkeby.etherscan.io/tx/${hash}`;
+      case 10:
+        return `https://optimistic.etherscan.io/tx/${hash}`;
+      case 11155420:
+        return `https://optimistic.etherscan.io/tx/${hash}`;
+      default:
+        return `https://etherscan.io/tx/${hash}`;
     }
   }
 
@@ -389,171 +334,254 @@ export default function BuyAndSell({
     return t("wallet.not-available");
   }
 
+  const exchangeContractSelectedToken = useExchangeContract(state.tokenAddress);
+
+  const routerContract = useRouterContract();
+  const contract = getContract({
+    client: client,
+    chain: optimismSepolia,
+    address: '0xFFeD3BecF54F233dBE134dECAae2b099c04EB8bc',
+    abi: contractABI
+  });
+
+
+  const crowdsaleContract = getContract({
+    client: client,
+    chain: optimismSepolia,
+    address: state.crowdsaleAddress,
+    abi: crowdsaleABI
+  });
+
+  const tokenContractSelectedToken = getContract({
+    client: client,
+    chain: optimismSepolia,
+    address: state.tokenAddress,
+    abi: ERC20ABI
+  });
+
+  const tokenContractWINES = getContract({
+    client: client,
+    chain: optimismSepolia,
+    address: state.tokenAddress,
+    abi: ERC20ABI
+
+  });
+
+
+  let wethAddress;
+  if (getNetworkId() === 11155420) {
+    wethAddress = "0x74A4A85C611679B73F402B36c0F84A7D2CcdFDa3"
+  } else if (getNetworkId() === 10) {
+    wethAddress = "0x4200000000000000000000000000000000000006"
+  } else if (getNetworkId() === 1) {
+    wethAddress = WETH[getNetworkId()].address
+  }
+
   if (!account?.address) {
     return (
       <>
         <Wrapper>
           <ContentWrapper>
-            <ConnectButton client={client} chain={defineChain(optimismSepolia)} connectButton={{
-              label: 'Conectar Wallet',
-              style: {
-                marginTop: 20,
-                background: "#d5841b",
-                color: "white",
-                fontSize: 20,
-                boxShadow:
-                  "0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)",
-              },
-            }} />
+            <ConnectButton client={client} chain={defineChain(optimismSepolia)}
+              connectButton={{
+                label: 'Conectar Wallet',
+                style: {
+                  marginTop: 20,
+                  background: "#d5841b",
+                  color: "white",
+                  fontSize: 20,
+                  boxShadow:
+                    "0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)",
+                },
+              }} />
           </ContentWrapper>
         </Wrapper>
       </>
     )
-
   }
 
   return (
-    <>
-      <Wrapper>
-        <Header>
-          <Account
-            ready={ready}
-            dollarPrice={dollarPrice}
-            balanceWINES={balanceWINES}
-            setShowConnect={setShowConnect}
-          ></Account>
-          <CloseIcon onClick={() => closeCheckout()}></CloseIcon>
-        </Header>
+    <Wrapper>
+      <Header>
+        <ConnectButton client={client} chain={defineChain(optimismSepolia)} />
+        <Account
+          ready={ready}
+          dollarPrice={dollarPrice}
+          balanceWINES={balanceWINES}
+          setShowConnect={setShowConnect}
+        />
+        <CloseIcon onClick={() => closeCheckout()} />
+      </Header>
 
-        <ContentWrapper>
-          <TopFrame>
-            <ImgStyle src={state.image} alt="Viniswap" />
-            <InfoFrame pending={pending}>
-              <CurrentPriceBuySell>
-                <Description>
-                  {buying
-                    ? t("wallet.pay")
-                    : selling
-                      ? t("wallet.sell")
-                      : t("wallet.crowdsale")}
-                </Description>
-                <WineTitle>
-                  {state.title} <b>{state.tokenName}</b>
-                </WineTitle>
-                <USDPrice>{renderFormData()}</USDPrice>
-                <WineCount>
-                  <b>{t("wallet.available")} </b>
-                  {renderSupplyData()}
-                </WineCount>
-              </CurrentPriceBuySell>
-            </InfoFrame>
-            {(!pending || !currentTransactionHash) && (
-              <IncrementToken initialValue={selling ? 1 : 1} step={1} />
-            )}
-          </TopFrame>
+      <ContentWrapper>
+        <TopFrame>
+          <ImgStyle src={state.image} alt="Viniswap" />
+          <InfoFrame pending={pending}>
+            <CurrentPriceBuySell>
+              <Description>
+                {buying
+                  ? t("wallet.pay")
+                  : selling
+                    ? t("wallet.sell")
+                    : t("wallet.crowdsale")}
+              </Description>
+              <WineTitle>
+                {state.title} <b>{state.tokenName}</b>
+              </WineTitle>
+              <USDPrice>{renderFormData()}</USDPrice>
+              <WineCount>
+                <b>{t("wallet.available")}</b> {renderSupplyData()}
+              </WineCount>
+            </CurrentPriceBuySell>
+          </InfoFrame>
 
-          {pending && currentTransactionHash ? (
+          {(!pending || !currentTransactionHash) && (
+            <IncrementToken initialValue={selling ? 1 : 1} step={1} />
+          )}
+        </TopFrame>
+
+        {pending && currentTransactionHash ? (
+          <CheckoutControls buying={buying}>
+            <CheckoutPrompt>
+              <i>{t("wallet.pending-transaction")}</i>
+            </CheckoutPrompt>
+            <CheckoutPrompt>
+              <EtherscanLink
+                href={link(currentTransactionHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t("wallet.view-etherscan")}
+              </EtherscanLink>
+            </CheckoutPrompt>
+          </CheckoutControls>
+        ) : (
+          <>
+            <EstimateGas />
             <CheckoutControls buying={buying}>
-              <CheckoutPrompt>
-                <i>{t("wallet.pending-transaction")}</i>
-              </CheckoutPrompt>
-              <CheckoutPrompt>
-                <EtherscanLink
-                  href={link(currentTransactionHash)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t("wallet.view-etherscan")}
-                </EtherscanLink>
-              </CheckoutPrompt>
+              <Form />
+              <SelectToken
+                isBuying={buying}
+                isSelling={selling}
+                selectedTokenSymbol={selectedTokenSymbol}
+                setSelectedTokenSymbol={setSelectedTokenSymbol}
+                prefix={TokenVal()}
+              />
             </CheckoutControls>
-          ) : (
-            <>
-              <EstimateGas />
+          </>
+        )}
 
-              <CheckoutControls buying={buying}>
-                <Form />
-            
-                <SelectToken
-                  isBuying={buying}
-                  isSelling={selling}
-                  selectedTokenSymbol={selectedTokenSymbol}
-                  setSelectedTokenSymbol={setSelectedTokenSymbol}
-                  prefix={TokenVal()}
-                />
-              </CheckoutControls>
-            </>
-          )}
-          {shouldRenderUnlock ? (
-            <ButtonFrame
-              text={`${t("wallet.unlock")} ${buying ? selectedTokenSymbol : state.tokenName
-                }`}
-              type={"cta"}
-              pending={pending}
-              onClick={() => {
-                unlock(buying).then(({ hash }) => {
-              
-                  
-                  setCurrentTransaction(hash, TRADE_TYPES.UNLOCK, undefined);
-                });
-              }}
-            />
-          ) : (
-            <ButtonFrame
-              className="button"
-              pending={pending}
-              disabled={
-                validationError !== null || (pending && currentTransactionHash)
-              }
-              text={getText(
-                account,
-                errorMessage,
-                ready,
-                pending,
-                currentTransactionHash
-              )}
-              type={"cta"}
-              onClick={() => {
-                if (account === null) {
-                  setConnector("Injected", {
-                    suppressAndThrowErrors: true,
-                  }).catch((error) => {
-                    setShowConnect(true);
-                  });
-                } else {
-                  (buying
-                    ? buy(
-                      buyValidationState.maximumInputValue,
-                      buyValidationState.outputValue
-                    )
-                    : selling
-                      ? sell(
-                        sellValidationState.inputValue,
-                        sellValidationState.minimumOutputValue
-                      )
-                      : crowdsale(
-                        crowdsaleValidationState.maximumInputValue,
-                        crowdsaleValidationState.outputValue
-                      )
+        {console.log(tokenContractSelectedToken.address)
+        }
+
+        {shouldRenderUnlock ? (
+          <TransactionButton
+            transaction={() =>
+              prepareContractCall({
+                contract: buying ? tokenContractSelectedToken : tokenContractWINES,
+                method: 'approve',
+                params: [
+                  buying ? exchangeContractSelectedToken.address : routerContract.address,
+                  BigInt(ethers.constants.MaxUint256),
+                ],
+
+              })
+            }
+
+            onError={(e) => console.error(e)}
+
+          > {`${t("wallet.unlock")} ${buying ? selectedTokenSymbol : state.tokenName
+            }`}</TransactionButton>
+        ) : buying ? (
+          <TransactionButton
+            disabled={pending || !state.emailValid}
+            transaction={() =>
+              prepareContractCall({
+                contract,
+                method: 'swapETHForExactTokens',
+                params: [
+                  buyValidationState.outputValue,
+                  [wethAddress, state.tokenAddress],
+                  account?.address,
+                  Math.floor(Date.now() / 1000) + 60 * 15,
+                ],
+                value: BigInt(
+                  ethers.utils.parseEther(
+                    ethers.utils.formatEther(buyValidationState?.maximumInputValue?.toString())
                   )
-                    .then((response) => {
-                      setCurrentTransaction(
-                        response.hash,
-                        state.tradeType,
-                        buying
-                          ? buyValidationState.outputValue
-                          : selling
-                            ? sellValidationState.inputValue
-                            : crowdsaleValidationState.outputValue
-                      );
-                    })
-                    .catch(console.error);
-                }
-              }}
-            />
-          )}
-        </ContentWrapper>
-      </Wrapper>
-    </>
+                ),
+              })
+            }
+            onError={(e) => console.error(e)}
+            onTransactionConfirmed={async (response) => {
+              if (response.status === "success") {
+                setCurrentTransaction(
+                  response.transactionHash,
+                  state.tradeType,
+                  buyValidationState.outputValue
+                );
+
+                await notifyBuyer(state.apiUrl, state.count, account, state.email, state.winerie_id, state.name)
+              }
+            }}
+          >
+            {getText(account, errorMessage, ready, pending, currentTransactionHash)}
+          </TransactionButton>
+        ) : selling ? (
+          <TransactionButton
+            disabled={pending || !state.emailValid}
+            transaction={() =>
+              prepareContractCall({
+                contract,
+                method: 'swapExactTokensForETH',
+                params: [
+                  sellValidationState.inputValue,
+                  sellValidationState.minimumOutputValue,
+                  [state.tokenAddress, wethAddress],
+                  account?.address,
+                  Math.floor(Date.now() / 1000) + 60 * 15,
+                ],
+              })
+            }
+            onError={(e) => console.log(e)}
+            onTransactionConfirmed={async (response) => {
+              if (response.status === "success") {
+                setCurrentTransaction(
+                  response.transactionHash,
+                  state.tradeType,
+                  sellValidationState.inputValue
+                );
+                await notifyBuyer(state.apiUrl, state.count, account, state.email, state.winerie_id, state.name
+                );
+              }
+            }}
+          >
+            {getText(account, errorMessage, ready, pending, currentTransactionHash)}
+          </TransactionButton>
+        ) : crowdsale ? (
+          <TransactionButton
+            disabled={pending || !state.emailValid}
+            transaction={() =>
+              prepareContractCall({
+                crowdsaleContract,
+                method: 'buyTokens',
+                params: [account?.address],
+                value: BigInt(
+                  ethers.utils.parseEther(
+                    ethers.utils.formatEther(crowdsaleValidationState.maximumInputValue)
+                  )
+                ),
+              })
+            }
+            onError={(e) => console.error(e)}
+          >
+            {getText(account, errorMessage, ready, pending, currentTransactionHash)}
+          </TransactionButton>
+        ) : (
+          <></>
+        )}
+      </ContentWrapper>
+    </Wrapper>
+
   );
 }
