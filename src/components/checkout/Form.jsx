@@ -1,4 +1,3 @@
-import React from "react";
 import { useAppContext } from "../../context";
 import { useTranslation } from "react-i18next";
 import { FormInput } from "../../styles";

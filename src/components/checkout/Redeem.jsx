@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { client } from "../../config/thirdwebClient";
 import { defineChain, optimismSepolia } from "thirdweb/chains";

@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components'
 import { Plus } from '@styled-icons/evil';
 import { Minus } from '@styled-icons/evil';

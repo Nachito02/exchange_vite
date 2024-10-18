@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Checkout from "./checkout/Checkout";
 import { useAppContext } from "../context";
 import { TradeButtons } from "./shared/TradeButtons";

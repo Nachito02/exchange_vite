@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { client } from "../../config/thirdwebClient";
 import { defineChain, optimismSepolia } from "thirdweb/chains";
 import { ConnectButton, ConnectEmbed, TransactionButton, useActiveAccount, useReadContract } from "thirdweb/react";
@@ -84,6 +84,7 @@ export function useCount() {
 }
 
 function getValidationErrorMessage(validationError) {
+  console.log(validationError?.code);
   if (!validationError) {
     return null;
   } else {
@@ -478,10 +479,10 @@ export default function BuyAndSell({
           <TransactionButton
             transaction={() =>
               prepareContractCall({
-                contract: buying ? tokenContractSelectedToken : tokenContractWINES,
+                contract: tokenContractWINES,
                 method: 'approve',
                 params: [
-                  buying ? exchangeContractSelectedToken.address : routerContract.address,
+                  routerContract.address,
                   BigInt(ethers.constants.MaxUint256),
                 ],
 
@@ -554,6 +555,8 @@ export default function BuyAndSell({
                 await notifyBuyer(state.apiUrl, state.count, account, state.email, state.winerie_id, state.name
                 );
               }
+
+
             }}
           >
             {getText(account, errorMessage, ready, pending, currentTransactionHash)}

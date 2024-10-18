@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import{ useState, useEffect } from 'react'
 
 import PlacesAutocomplete, { geocodeByAddress } from 'react-places-autocomplete'
 import styled from 'styled-components'

@@ -38,8 +38,8 @@ function getFactoryAddress() {
 }
 
 const FACTORY_ADDRESS = getFactoryAddress();
-export const ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
-// export const ROUTER_ADDRESS = "0xFFeD3BecF54F233dBE134dECAae2b099c04EB8bc"
+// export const ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
+export const ROUTER_ADDRESS = "0xFFeD3BecF54F233dBE134dECAae2b099c04EB8bc"
 
 // denominated in bips
 const ALLOWED_SLIPPAGE = BigNumber.from(200);

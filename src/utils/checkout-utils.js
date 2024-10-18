@@ -30,16 +30,6 @@ export function validateBuyHelper(
     selectedTokenSymbol
 ) {
     
-    console.log( numberOfWINES,
-        allowanceSelectedToken,
-        balanceETH,
-        balanceSelectedToken,
-        reserveWINESETH,
-        reserveWINESToken,
-        reserveSelectedTokenETH,
-        reserveSelectedTokenToken,
-        selectedTokenSymbol);
-    
     // validate passed amount
     let parsedValue
     try {
