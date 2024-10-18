@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { client } from "../../config/thirdwebClient";
 import { defineChain, optimismSepolia } from "thirdweb/chains";
 import { ConnectButton, ConnectEmbed, TransactionButton, useActiveAccount, useReadContract } from "thirdweb/react";

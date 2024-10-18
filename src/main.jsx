@@ -1,3 +1,4 @@
+import React from 'react'
 import UniSwap from './components/UniSwap';
 
 // Aseguramos que el Custom Element se registre solo una vez

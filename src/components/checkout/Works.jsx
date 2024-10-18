@@ -1,3 +1,5 @@
+import React from 'react'
+
 import styled from "styled-components";
 
 import { Close } from "@styled-icons/material/Close";
