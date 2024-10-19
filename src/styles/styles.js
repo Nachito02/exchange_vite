@@ -7,9 +7,8 @@ export const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-
+ 
   margin: 64px;
-
   @media only screen and (max-width: 480px) {
     margin: 32px;
   }

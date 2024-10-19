@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import styled from 'styled-components'
 import Select from 'react-select'
 import { useAppContext } from '../../context'
@@ -15,7 +15,7 @@ import {
 import axios from 'axios';
 import { fetchCountries } from '../../utils/fetchCountries'
 import { ethers5Adapter } from 'thirdweb/adapters/ethers5'
-import {BigNumber} from 'ethers'
+import { BigNumber } from 'ethers'
 const bot = 'beep-boop'
 const name = 'name'
 const line1 = 'line1'
@@ -289,8 +289,15 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
         disabled={!canSign || shippingCostError}
         text={t('redeem.next')}
         type={'submit'}
-        onClick={event => {
-          const signer = library.getSigner()
+        onClick={ async (event) => {
+          const signer = await ethers5Adapter.signer.toEthers({
+            client,
+            chain : optimismSepolia,
+            account
+          });
+
+          
+          
           const timestampToSign = Math.round(Date.now() / 1000)
           const formDataMessage = nameOrder.map(o => `${t(`${o}`)}: ${formState[o]}`).join('\n')
           const autoMessage = `${t('redeem.address')}: ${account}\n${t('redeem.timestamp')}: ${timestampToSign}\n${t('redeem.numberBurned')}: ${actualNumberBurned}`

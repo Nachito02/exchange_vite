@@ -2,13 +2,16 @@ import React, { useEffect, useState } from 'react'
 import styles from './WinerySelector.module.css'; // Importa el archivo de módulos CSS
 import axios from 'axios';
 import { axiosClient } from '../../config/axiosClient';
-import ProductWinerySelector from '../../ProductWinerySelector/ProductWinerySelector';
+import ProductWinerySelector from '../ProductWinerySelector/ProductWinerySelector';
 import { getComingSoonWineriesList } from '../../utils/getComingSoonWineries';
 import ProductComingSoonWinerySelector from '../ProductComingSoonWinerySelector/ProductComingSoonWinerySelector';
+import { useTranslation } from 'react-i18next';
 
 const WinerySelector = () => {
     const [wineries, setWineries] = useState([]);
     const [comingSoonWineies, setComingSoonWineies] = useState([]);
+
+    const { t } = useTranslation();
 
     const getWineries = async () => {
         const wineries = await axiosClient.get('/wineries')
@@ -43,9 +46,9 @@ const WinerySelector = () => {
                 <div className="collapse navbar-collapse w-full justify-content-end" id="navbarNavAltMarkup">
                     <div className="navbar-nav">
                         <a className="nav-item nav-link" href="https://openvino.atlassian.net/wiki/spaces/OPENVINO/overview?mode=global"
-                            target="blank">Wiki</a>
+                            target="blank">{t('wineries.openvino-wiki')}</a>
                         <a className="nav-item nav-link" href="https://openvino.org/es/"
-                            target="blank">Contact</a>
+                            target="blank">{t('wineries.contact')}</a>
                     </div>
                 </div>
             </nav>
@@ -54,11 +57,11 @@ const WinerySelector = () => {
                 <div className={styles['winery-selector-content']}>
                     <div className="d-sm-flex align-items-center justify-content-between py-2 py-sm-3">
                         <div className={`pb-2 ${styles['selector-content-header']}`}>
-                            <h1>Bodegas</h1>
+                            <h1>{t('wineries.title')}</h1>
                         </div>
                         <div className={`input-group rounded pb-2 ${styles['input-group']}`}>
                             <input type="text" className={`rounded form-control search-input ${styles['form-control']}`}
-                                placeholder="Busca aquí tu bodega" name="searchTerm" />
+                                placeholder={t('wineries.search')} name="searchTerm" />
                         </div>
                     </div>
                     <div className={`${styles['card-group']} card-group`}>

@@ -1,7 +1,9 @@
 import React from 'react';
 import styles from './ProductComingSoonWinerySelector.module.css'; // Importa los módulos CSS
+import { useTranslation } from 'react-i18next';
 
 const ProductComingSoonWinerySelector = ({ winery }) => {
+    const {t} = useTranslation();
     return (
        <div className={styles['card-winery']}>
          <div className={` card ${styles.card} `}>
@@ -13,7 +15,7 @@ const ProductComingSoonWinerySelector = ({ winery }) => {
                         alt={winery.name}
                     />
                     <div className={`${styles['card-img-overlay']} card-img-overlay`}>
-                        <p>Proximamente</p>
+                        <p>{t('wineries.coming-soon')}</p>
                     </div>
                 </div>
                 <h5 className={styles['card-title']} style={{ color: "#141414" }}>

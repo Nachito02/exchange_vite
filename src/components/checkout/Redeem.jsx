@@ -260,7 +260,9 @@ export default function Redeem({
         />
       )
     } else if (!hasPickedAmount) {
+    
       return (
+        
         <>
           <TopFrame hasPickedAmount={hasPickedAmount}>
             <Controls closeCheckout={closeCheckout} />
