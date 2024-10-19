@@ -3,18 +3,25 @@ import styles from './WinerySelector.module.css'; // Importa el archivo de módu
 import axios from 'axios';
 import { axiosClient } from '../../config/axiosClient';
 import ProductWinerySelector from '../../ProductWinerySelector/ProductWinerySelector';
-
-
+import { getComingSoonWineriesList } from '../../utils/getComingSoonWineries';
+import ProductComingSoonWinerySelector from '../ProductComingSoonWinerySelector/ProductComingSoonWinerySelector';
 
 const WinerySelector = () => {
-
     const [wineries, setWineries] = useState([]);
+    const [comingSoonWineies, setComingSoonWineies] = useState([]);
 
     const getWineries = async () => {
-        const response = await axiosClient.get('/wineries')
-        
-        setWineries(response.data)
+        const wineries = await axiosClient.get('/wineries')
+        setWineries(wineries.data)
+
+        //coming soon wineries
+        const comingSoonWineries = getComingSoonWineriesList();
+        console.log(comingSoonWineries);
+
+        setComingSoonWineies(comingSoonWineries);
+        return
     }
+
     useEffect(() => {
         getWineries();
     }, [])
@@ -54,15 +61,15 @@ const WinerySelector = () => {
                                 placeholder="Busca aquí tu bodega" name="searchTerm" />
                         </div>
                     </div>
-
-                    <div className="card-group">
+                    <div className={`${styles['card-group']} card-group`}>
                         {wineries.map(winery => (
                             <ProductWinerySelector key={winery.id} winery={winery} />
                         ))}
+                        {comingSoonWineies.map(winery => (
+                            <ProductComingSoonWinerySelector key={winery.ID} winery={winery} />
+                        ))}
                     </div>
-
                 </div>
-
             </div>
         </div>
     )

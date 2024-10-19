@@ -3,7 +3,8 @@ import styles from './ProductWinerySelector.module.css'; // Importa los módulos
 
 const ProductWinerySelector = ({ winery }) => {
     return (
-        <div className={styles.card}>
+       <div className={styles['card-winery']}>
+         <div className={styles.card}>
             <div className={styles['card-body']}>
                 <p className={styles['card-img-link']}> Visita la bodega </p>
 
@@ -22,6 +23,7 @@ const ProductWinerySelector = ({ winery }) => {
                 </h5>
             </div>
         </div>
+       </div>
     );
 };
 

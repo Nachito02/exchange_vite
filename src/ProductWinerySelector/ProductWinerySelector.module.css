@@ -48,7 +48,7 @@
   
   .card-img-link {
     text-align: center;
-    font-size: 1.1rem!important;
+    font-size: 1.2rem!important;
     color: white;
     opacity: 1;
     position: absolute;
@@ -87,3 +87,12 @@
     height: 100%;
   }
   
+  .card-winery {
+    width: 25% !important;
+  }
+  
+  @media (max-width: 840px) {
+    .card-winery {
+      width: 33% !important;
+    }
+  }
