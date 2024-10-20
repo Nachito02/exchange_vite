@@ -77,4 +77,11 @@
       width: 33% !important;
     }
   }
+
+  @media screen and (max-width: 575px) {
+    .card-winery {
+      width: 100% !important;
+    }
+    
+  }
   
