@@ -39,7 +39,11 @@ function getFactoryAddress() {
 
 const FACTORY_ADDRESS = getFactoryAddress();
 // export const ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
-export const ROUTER_ADDRESS = "0xFFeD3BecF54F233dBE134dECAae2b099c04EB8bc"
+// export const ROUTER_ADDRESS = "0xFFeD3BecF54F233dBE134dECAae2b099c04EB8bc"
+
+//BASE SEPOLIA
+export const ROUTER_ADDRESS = "0x78e8874809e12ba3C23e33E2C071D41f78601324"
+
 
 // denominated in bips
 const ALLOWED_SLIPPAGE = BigNumber.from(200);
@@ -124,6 +128,7 @@ export function getCrowdsaleContract(crowdsaleAddress, library, account) {
 }
 
 export function getIsCrowdsaleOpen(crowdsaleAddress, library, account) {
+  
   return getCrowdsaleContract(
     crowdsaleAddress,
     CROWDSALE_ABI,

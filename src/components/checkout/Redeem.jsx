@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { client } from "../../config/thirdwebClient";
-import { defineChain, optimismSepolia } from "thirdweb/chains";
+import { defineChain, baseSepolia } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import axios from 'axios';
 import { useAppContext } from '../../context';
@@ -54,7 +54,7 @@ export default function Redeem({
 }) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const account = useActiveAccount();

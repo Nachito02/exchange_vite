@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { client } from "../config/thirdwebClient";
-import { defineChain, optimismSepolia } from "thirdweb/chains";
+import { defineChain, baseSepolia } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
+import FACTORY_ABI from '../contracts/factory.json';
 import {
   isAddress,
   getTokenContract,
@@ -16,11 +17,9 @@ import {
   getPairContract,
   getNetworkId,
   getRouterContract,
+  getContract,
 } from "../utils";
-import { pack, keccak256 } from "@ethersproject/solidity";
-import { getCreate2Address } from "@ethersproject/address";
 import { ethers } from "ethers";
-import { WETH, INIT_CODE_HASH, FACTORY_ADDRESS } from "@uniswap/sdk";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 
 export function useCrowdsaleContract(
@@ -29,7 +28,7 @@ export function useCrowdsaleContract(
 ) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const account = useActiveAccount();
@@ -50,7 +49,7 @@ export function useCrowdsaleContract(
 export function useTokenContract(tokenAddress, withSignerIfPossible = true) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const account = useActiveAccount();
@@ -71,7 +70,7 @@ export function useTokenContract(tokenAddress, withSignerIfPossible = true) {
 export function useRouterContract(withSignerIfPossible = true) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const account = useActiveAccount();
@@ -91,7 +90,7 @@ export function useRouterContract(withSignerIfPossible = true) {
 export function useExchangeContract(tokenAddress, withSignerIfPossible = true) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const account = useActiveAccount();
@@ -128,43 +127,48 @@ export function useExchangeContract(tokenAddress, withSignerIfPossible = true) {
 }
 
 export function usePairContract(tokenAddress, withSignerIfPossible = true) {
+  const [pairAddress, setPairAddress] = useState(null); // Estado para guardar la dirección del par
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const account = useActiveAccount();
-  return useMemo(() => {
-    try {
-      const networkId = getNetworkId()
-      if (networkId === 11155420) {
-        const pair = "0xE10c54437A8638308d99418B8EC6B63bfBd00D0b"
-        return getPairContract(
-          pair,
-          library,
-          withSignerIfPossible ? account?.address : undefined
-        );
 
-      } else {
-        const token1 = WETH[getNetworkId()].address;
-        const token0 = tokenAddress;
+  useEffect(() => {
+    const fetchPairAddress = async () => {
+      try {
+        if (tokenAddress) {
+          const factoryAddress = "0x5Eb302dAd61F86d0b0A0ca935fc91987B9947bE4";
+          const token1 = "0x4200000000000000000000000000000000000006"; // WETH
+          const token0 = tokenAddress;
 
-        const pair = getCreate2Address(
-          FACTORY_ADDRESS,
-          keccak256(["bytes"], [pack(["address", "address"], [token0, token1])]),
-          INIT_CODE_HASH
-        );
-        return getPairContract(
-          pair,
-          library,
-          withSignerIfPossible ? account?.address : undefined
-        );
+          const factoryContract = getContract(factoryAddress, FACTORY_ABI, library);
+
+          const pairAddress = await factoryContract.getPair(token0, token1); // Espera que se resuelva la promesa
+          setPairAddress(pairAddress); // Guarda la dirección del par en el estado
+        }
+      } catch (error) {
+        console.error("Error obteniendo la dirección del par:", error);
       }
-    } catch {
-      return null;
+    };
+
+    fetchPairAddress();
+  }, [tokenAddress, library]);
+
+  return useMemo(() => {
+    if (pairAddress) {
+      console.log(pairAddress, 'Pair Address Resolved');
+      return getPairContract(
+        pairAddress,
+        library,
+        withSignerIfPossible ? account?.address : undefined
+      );
     }
-  }, [tokenAddress, withSignerIfPossible]);
+  }, [pairAddress, withSignerIfPossible]);
 }
+
+
 
 export function useReserves(pairContract) {
   const [reserves, setReserves] = useState();
@@ -200,15 +204,18 @@ export function useReserves(pairContract) {
   }
 }
 
-export function useAddressBalance(address, tokenAddress) {
+export function useAddressBalance(address, tokenAddress,refreshTrigger) {
+
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const [balance, setBalance] = useState();
 
   const updateBalance = useCallback(() => {
+    console.log('denuev0 ejecutando sell');
+
     if (
       isAddress(address) &&
       (tokenAddress === "ETH" || isAddress(tokenAddress))
@@ -234,13 +241,11 @@ export function useAddressBalance(address, tokenAddress) {
         setBalance();
       };
     }
-  }, [address, tokenAddress]);
+  }, [address, tokenAddress, refreshTrigger]); 
 
   useEffect(() => {
     return updateBalance();
   }, [updateBalance]);
-
-  // useBlockEffect(updateBalance)
 
   return balance;
 }
@@ -330,12 +335,12 @@ export function useExchangeReserves(tokenAddress) {
   return { reserveETH, reserveToken };
 }
 
-export function useAddressAllowance(address, tokenAddress, spenderAddress) {
+export function useAddressAllowance(address, tokenAddress, spenderAddress,refreshTrigger) {
 
 
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const [allowance, setAllowance] = useState();
@@ -350,6 +355,7 @@ export function useAddressAllowance(address, tokenAddress, spenderAddress) {
 
       getTokenAllowance(address, tokenAddress, spenderAddress, library)
         .then((allowance) => {
+
           if (!stale) {
             setAllowance(allowance);
           }
@@ -365,7 +371,7 @@ export function useAddressAllowance(address, tokenAddress, spenderAddress) {
         setAllowance();
       };
     }
-  }, [address, spenderAddress, tokenAddress]);
+  }, [address, spenderAddress, tokenAddress,refreshTrigger]);
 
   useEffect(() => {
     return updateAllowance();

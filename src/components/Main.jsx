@@ -6,7 +6,7 @@ import { BigNumber, ethers } from "ethers";
 import { useTranslation } from "react-i18next";
 import { useActiveAccount } from "thirdweb/react";
 import { client } from "../config/thirdwebClient";
-import { optimismSepolia } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 import {
   TOKEN_SYMBOLS, TOKEN_ADDRESSES, TRADE_TYPES, getExchangeRate, getCrowdsaleContract, calculateGasMargin, amountFormatter, getProviderOrSigner, getNetworkId,
 } from "../utils";
@@ -29,12 +29,12 @@ import Header from "./Header/Header";
 export default function Main() {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
 
   });
   const signer = ethers5Adapter.signer.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
     account: account
   })
 
@@ -44,6 +44,8 @@ export default function Main() {
   const { wineryId, productId } = useParams();
   const [product, setProduct] = useState([]);
   const [state, setState] = useAppContext();
+  const  [refreshTrigger, setRefreshTrigger] = useState(0);
+
 
   const getProductList = async () => {
 
@@ -107,12 +109,13 @@ export default function Main() {
   // crowdsale contract
   const crowdsaleContract = useCrowdsaleContract(state?.crowdsaleAddress);
 
+
   // get balances
   const balanceETH = useAddressBalance(account?.address, TOKEN_ADDRESSES.ETH);
-  const balanceWINES = useAddressBalance(account?.address, state?.tokenAddress);
+  const balanceWINES = useAddressBalance(account?.address, state?.tokenAddress,refreshTrigger);
   const balanceSelectedToken = useAddressBalance(
     account?.address,
-    TOKEN_ADDRESSES[selectedTokenSymbol]
+    TOKEN_ADDRESSES[selectedTokenSymbol],refreshTrigger
   );
 
   // tokenSupply
@@ -125,16 +128,20 @@ export default function Main() {
   const allowanceWINES = useAddressAllowance(
     account?.address,
     state?.tokenAddress,
-    routerContract && routerContract.address
+    routerContract && routerContract.address,
+    refreshTrigger
   );
   const allowanceSelectedToken = useRouterAllowance(
     account?.address,
-    state?.tokenAddress
+    state?.tokenAddress,
+    refreshTrigger
   );
 
   const reserveWINESETH = useReserves(pairMTBwETH)["0"];
   const reserveWINESToken = useReserves(pairMTBwETH)["1"];
 
+
+  
   // const reserveWINESETH = useReserves(pairMTBwETH)["1"];
   // const reserveWINESToken = useReserves(pairMTBwETH)["0"];
 
@@ -203,6 +210,13 @@ export default function Main() {
   let [isCrowdsale, setCrowdsale] = useState();
   useEffect(() => {
     try {
+      console.log(state.crowdsaleAddress);
+      
+      if(state.crowdsaleAddress === '') {
+        setCrowdsale(false);
+        return
+      }
+
       crowdsaleContract
         .isOpen()
         .then((open) => {
@@ -302,7 +316,6 @@ export default function Main() {
   }, [USDExchangeRateETH, reserveWINESETH, reserveWINESToken]);
 
   async function unlock(buyingWINES = true) {
-
     const contract = buyingWINES
       ? tokenContractSelectedToken
       : tokenContractWINES;
@@ -311,8 +324,6 @@ export default function Main() {
       : routerContract.address;
 
     console.log("Unlocking...", tokenContractSelectedToken, tokenContractWINES, contract);
-
-
     const estimatedGasLimit = await contract.estimateGas.approve(
       spenderAddress,
       ethers.constants.MaxUint256
@@ -338,6 +349,8 @@ export default function Main() {
   // buy functionality
   const validateBuy = useCallback(
     (numberOfWINES) => {
+      console.log('aqui de nuevo');
+      
       return validateBuyHelper(
         numberOfWINES,
         allowanceSelectedToken,
@@ -359,6 +372,8 @@ export default function Main() {
       reserveSelectedTokenETH,
       reserveSelectedTokenToken,
       selectedTokenSymbol,
+      refreshTrigger,
+   
     ]
   );
 
@@ -390,6 +405,9 @@ export default function Main() {
   // sell functionality
   const validateSell = useCallback(
     (numberOfWINES) => {
+    
+        console.log('hola desde sell');
+        
       return validateSellHelper(
         numberOfWINES,
         allowanceWINES,
@@ -411,6 +429,8 @@ export default function Main() {
       reserveSelectedTokenETH,
       reserveSelectedTokenToken,
       selectedTokenSymbol,
+      refreshTrigger,
+      state.count
     ]
   );
 
@@ -472,10 +492,6 @@ export default function Main() {
   const [showWorks, setShowWorks] = useState(false);
 
   const { t } = useTranslation();
-
-
-
-
 
   return (
    
@@ -552,6 +568,7 @@ export default function Main() {
           clearCurrentTransaction={clearCurrentTransaction}
           showWorks={showWorks}
           setShowWorks={setShowWorks}
+          setRefreshTrigger={setRefreshTrigger}
         />
         {showFarming && (
           <Farming

@@ -259,6 +259,8 @@ export function validateSellHelper(
     reserveSelectedTokenToken,
     selectedTokenSymbol
 ) {
+    
+    
     // validate passed amount
     let parsedValue
     try {
