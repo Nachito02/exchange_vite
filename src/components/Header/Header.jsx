@@ -2,11 +2,15 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Header.module.css'; // Importa el archivo CSS Module
 import { useTranslation } from 'react-i18next';
+import Tabs from '../Tabs/Tabs';
+import Sensors from '../Sensors/Sensors';
+import Heatmap from '../../HeatMap/HeatMap';
 
 const Header = ({ children }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   return (
+    <>
     <div className={styles['product-header']}>
       <div className={styles['product-header-logo']}>
         <picture>
@@ -27,6 +31,15 @@ const Header = ({ children }) => {
         {children}
       </div>
     </div>
+
+    <div className={styles['product-content']}>
+    <Tabs />
+    <Sensors />
+    {/* <DateSelector /> */}
+ 
+    </div>
+
+    </>
   );
 };
 

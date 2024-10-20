@@ -1,0 +1,132 @@
+.heatmap-tabs {
+    height: 80px;
+    margin: 8px 0;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.heatmap {
+    width: -webkit-fill-available
+}
+
+.heatmap-tabs-item {
+    max-width: 250px;
+    flex: 1;
+    border-radius: 2px;
+    font-size: 0.8rem;
+    color: #d5841b;
+    text-align: center;
+    margin: 0 4px;
+    padding: 6px;
+    cursor: pointer;
+}
+
+.heatmap-tabs-item-active {
+    background-color: #d5841b;
+    color: white;
+}
+
+.heatmap-chart {
+    display: flex;
+    flex-direction: column;
+}
+
+.heatmap-chart-content {
+    display: flex;
+    flex-direction: row;
+}
+
+.heatmap-chart-data {
+    overflow-x: hidden;
+    overflow-y: hidden;
+    flex: 1;
+    display: flex;
+}
+
+.heatmap-chart-data-container {
+    display: flex;
+    flex-direction: column;
+    min-width: fit-content;
+    flex: 1;
+}
+
+.heatmap-chart-label-y {
+    display: flex;
+    flex-direction: column;
+}
+
+.heatmap-chart-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-width: fit-content;
+    flex: 1;
+}
+
+.heatmap-chart-row-label {
+    display: flex;
+    align-items: center;
+    width: 40px;
+    height: 30px;
+    margin: 1px;
+    font-size: 0.7rem;
+    color: #9a999e;
+    text-align: left;
+    padding: 0 6px;
+}
+
+.heatmap-chart-row-data {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    font-size: 0.7rem;
+    color: white;
+    margin: 1px;
+    flex: 1;
+}
+
+.heatmap-chart-row-data-active {
+    border: 1px solid white;
+    margin: 0;
+}
+
+.heatmap-chart-row-label-x {
+    margin: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: #9a999e;
+    flex: 1;
+}
+
+.heatmap-chart-divider {
+    margin: 10px 0;
+    height: 1px;
+    background-color: #979797;
+}
+
+.heatmap-legend {
+    padding: 24px 0 0 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.heatmap-legend-label {
+    margin: 1px;
+    font-size: 0.8rem;
+    color: #9a999e;
+    padding: 0 8px;
+    text-align: center;
+}
+
+.heatmap-legend-gradient {
+    flex: 1;
+    height: 20px;
+    background-image: linear-gradient(to right, #02b3be 0%, #d5841b 100%);
+}

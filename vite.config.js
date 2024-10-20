@@ -6,7 +6,5 @@ import babel from 'vite-plugin-babel';
 export default defineConfig({
   plugins: [nodePolyfills(), react(), babel()],
 
-  esbuild: {
-    jsxInject: `import React from 'react'`
-  }
+  
 })

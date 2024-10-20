@@ -178,9 +178,10 @@ export default function Redeem({
   }, [userForm])
 
   function link(hash) {
+    return `https://sepolia.basescan.org/tx/${hash}`
     switch (parseInt(state.networkId)) {
       case 3:
-        return `https://ropsten.etherscan.io/tx/${hash}`
+        return `https://sepolia.basescan.org//tx/${hash}`
       case 4:
         return `https://rinkeby.etherscan.io/tx/${hash}`
       case 10:
@@ -260,9 +261,9 @@ export default function Redeem({
         />
       )
     } else if (!hasPickedAmount) {
-    
+
       return (
-        
+
         <>
           <TopFrame hasPickedAmount={hasPickedAmount}>
             <Controls closeCheckout={closeCheckout} />
