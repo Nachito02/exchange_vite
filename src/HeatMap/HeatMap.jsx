@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './Heatmap.module.css';
+import styles from './HeatMap.module.css';
 
 const Heatmap = () => {
   const tabs = ["Tab 1", "Tab 2", "Tab 3"]; // Sample static tabs
