@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { client } from "../../config/thirdwebClient";
 import { defineChain, baseSepolia } from "thirdweb/chains";
-import { useActiveAccount } from "thirdweb/react";
+import { ConnectButton, TransactionButton, useActiveAccount } from "thirdweb/react";
 import axios from 'axios';
 import { useAppContext } from '../../context';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +17,8 @@ import { Circle, CheckCircle, Award } from '@styled-icons/boxicons-regular';
 import { fetchRedeems, updateRedeem } from '../../utils/fetchRedeems';
 import { BigNumber, ethers } from 'ethers';
 import { ethers5Adapter } from 'thirdweb/adapters/ethers5';
-
+import { getContract, prepareContractCall } from 'thirdweb';
+import ERC20 from '../../contracts/erc20.json';
 const config = {
   angle: 90,
   spread: 76,
@@ -57,8 +58,16 @@ export default function Redeem({
     chain: baseSepolia,
   });
 
-  const account = useActiveAccount();
   const [state] = useAppContext()
+
+  const tokenContract = getContract({
+    client,
+    chain: baseSepolia,
+    address: state.tokenAddress,
+    abi: ERC20
+  })
+
+  const account = useActiveAccount();
 
   const [numberBurned, setNumberBurned] = useState()
   const [hasPickedAmount, setHasPickedAmount] = useState(false)
@@ -81,6 +90,8 @@ export default function Redeem({
   const { t } = useTranslation();
 
   useEffect(() => {
+      console.log(transactionHash);
+      
     if (transactionHash) {
       library.waitForTransaction(transactionHash).then(() => {
         setLastTransactionHash(transactionHash)
@@ -93,13 +104,16 @@ export default function Redeem({
         }
       })
     }
-  })
+  }, [transactionHash])
+
+
+
 
 
   const sendEmailMessage = async (email, type) => {
     let body = {
       email: email,
-      secret_key: process.env.REACT_APP_SECRET_KEY,
+      secret_key: import.meta.VITE_API_SECRET,
       subject: '',
       message: ''
     }
@@ -246,19 +260,22 @@ export default function Redeem({
 
         </ConfirmContainer>
       )
-    } else if (account?.address === null) {
+    } else if (!account?.address) {
       return (
-        <ButtonFrame
-          className="button"
-          disabled={false}
-          text={account?.address === null ? t('wallet.connect') : t('wallet.redeem-token', { token: state.tokenName })}
-          type={'cta'}
-          onClick={() => {
-            setConnector('Injected', { suppressAndThrowErrors: true }).catch(() => {
-              setShowConnect(true)
-            })
-          }}
-        />
+        <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",width: "100%"}}>
+          <ConnectButton client={client} chain={defineChain(baseSepolia)}
+            connectButton={{
+              label: 'Conectar Wallet',
+              style: {
+                marginTop: 20,
+                background: "#d5841b",
+                color: "white",
+                fontSize: 20,
+                boxShadow:
+                  "0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)",
+              },
+            }} />
+        </div>
       )
     } else if (!hasPickedAmount) {
 
@@ -339,7 +356,7 @@ export default function Redeem({
               </RedeemStep> : <></>}
 
             </RedeemSteps>
-            <ButtonFrame
+            {/* <ButtonFrame
               className="button"
               disabled={loading}
               pending={loading}
@@ -485,7 +502,28 @@ export default function Redeem({
                 }
 
               }}
-            />
+            /> */}
+            <TransactionButton onTransactionConfirmed={async (response) => {
+              setTransactionHash(response.transactionHash)
+              setBurnTxHash(response.transactionHash)
+              if (userForm.pickup === false) {
+                const transfer = await transferShippingCosts(USDToEth(USDExchangeRateETH, shippingCost))
+
+                console.log(transfer, 'transfer shipping costs');
+
+                setTransactionHash(transfer.hash)
+              }
+
+            }} transaction={() => prepareContractCall({
+              contract: tokenContract,
+              method: 'burn',
+              params: [ethers.utils.parseUnits(numberBurned.toString(), 18)],
+            })}>
+              {loading ?
+                t('wallet.waiting-confirmation') :
+                `${t('redeem.burn')} ${state.tokenName}`
+              }
+            </TransactionButton>
             <Back disabled={!!pending}>
               {pending ? (
                 <EtherscanLink href={link(transactionHash)} target="_blank" rel="noopener noreferrer">
@@ -515,8 +553,7 @@ export default function Redeem({
                 <p style={{ fontSize: '18px' }}>{t('redeem.you-got-wine')}</p>
               </Owned>
             </InfoFrame>
-          </TopFrame>
-          <CheckoutPrompt>
+            <CheckoutPrompt>
             {t('redeem.estimated-time')}
           </CheckoutPrompt>
           <div style={{ margin: '16px 0 16px 16px' }}>
@@ -524,6 +561,8 @@ export default function Redeem({
               {t('wallet.view-etherscan')}
             </EtherscanLink>
           </div>
+          </TopFrame>
+        
         </>
       )
     }

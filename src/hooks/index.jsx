@@ -139,8 +139,8 @@ export function usePairContract(tokenAddress, withSignerIfPossible = true) {
     const fetchPairAddress = async () => {
       try {
         if (tokenAddress) {
-          const factoryAddress = "0x5Eb302dAd61F86d0b0A0ca935fc91987B9947bE4";
-          const token1 = "0x4200000000000000000000000000000000000006"; // WETH
+          const factoryAddress = import.meta.env.VITE_FACTORY_ADDRESS;
+          const token1 = import.meta.env.VITE_WETH_ADDRESS; // WETH
           const token0 = tokenAddress;
 
           const factoryContract = getContract(factoryAddress, FACTORY_ABI, library);

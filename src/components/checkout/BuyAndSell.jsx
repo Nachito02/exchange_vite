@@ -345,7 +345,7 @@ export default function BuyAndSell({
   const contract = getContract({
     client: client,
     chain: baseSepolia,
-    address: '0x78e8874809e12ba3C23e33E2C071D41f78601324',
+    address: import.meta.env.VITE_ROUTER_ADDRESS,
     abi: contractABI
   });
 
@@ -367,7 +367,7 @@ export default function BuyAndSell({
 
 
   //base sepolia
-  let wethAddress = "0x4200000000000000000000000000000000000006";
+  let wethAddress = import.meta.env.VITE_WETH_ADDRESS;
 
   if (!account?.address) {
     return (
@@ -520,7 +520,7 @@ export default function BuyAndSell({
                   buyValidationState.outputValue
                 );
 
-                await notifyBuyer(state.apiUrl, state.count, account, state.email, state.winerie_id, state.name)
+                await notifyBuyer(state.apiUrl, state.count, account?.address, state.email, state.winerie_id, state.name)
               }
             }}
           >
@@ -550,7 +550,7 @@ export default function BuyAndSell({
                   state.tradeType,
                   sellValidationState.inputValue
                 );
-                await notifyBuyer(state.apiUrl, state.count, account, state.email, state.winerie_id, state.name
+                await notifyBuyer(state.apiUrl, state.count, account?.address, state.email, state.winerie_id, state.name
                 );
               }
 

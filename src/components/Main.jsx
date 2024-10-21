@@ -44,7 +44,7 @@ export default function Main() {
   const { wineryId, productId } = useParams();
   const [product, setProduct] = useState([]);
   const [state, setState] = useAppContext();
-  const  [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
 
   const getProductList = async () => {
@@ -74,6 +74,7 @@ export default function Main() {
       tokenName: filterProduct[0].id,
       tokenIcon: filterProduct[0].token_icon,
       title: "Token",
+      shippingAccount: filterProduct[0].shipping_account,
     }))
 
 
@@ -112,10 +113,10 @@ export default function Main() {
 
   // get balances
   const balanceETH = useAddressBalance(account?.address, TOKEN_ADDRESSES.ETH);
-  const balanceWINES = useAddressBalance(account?.address, state?.tokenAddress,refreshTrigger);
+  const balanceWINES = useAddressBalance(account?.address, state?.tokenAddress, refreshTrigger);
   const balanceSelectedToken = useAddressBalance(
     account?.address,
-    TOKEN_ADDRESSES[selectedTokenSymbol],refreshTrigger
+    TOKEN_ADDRESSES[selectedTokenSymbol], refreshTrigger
   );
 
   // tokenSupply
@@ -141,7 +142,7 @@ export default function Main() {
   const reserveWINESToken = useReserves(pairMTBwETH)["1"];
 
 
-  
+
   // const reserveWINESETH = useReserves(pairMTBwETH)["1"];
   // const reserveWINESToken = useReserves(pairMTBwETH)["0"];
 
@@ -211,8 +212,8 @@ export default function Main() {
   useEffect(() => {
     try {
       console.log(state.crowdsaleAddress);
-      
-      if(state.crowdsaleAddress === '') {
+
+      if (state.crowdsaleAddress === '') {
         setCrowdsale(false);
         return
       }
@@ -350,7 +351,7 @@ export default function Main() {
   const validateBuy = useCallback(
     (numberOfWINES) => {
       console.log('aqui de nuevo');
-      
+
       return validateBuyHelper(
         numberOfWINES,
         allowanceSelectedToken,
@@ -373,7 +374,7 @@ export default function Main() {
       reserveSelectedTokenToken,
       selectedTokenSymbol,
       refreshTrigger,
-   
+
     ]
   );
 
@@ -405,9 +406,9 @@ export default function Main() {
   // sell functionality
   const validateSell = useCallback(
     (numberOfWINES) => {
-    
-        console.log('hola desde sell');
-        
+
+      console.log('hola desde sell');
+
       return validateSellHelper(
         numberOfWINES,
         allowanceWINES,
@@ -437,10 +438,15 @@ export default function Main() {
 
 
   async function transferShippingCosts(amount) {
-    let signer = getProviderOrSigner(library, account?.address);
+    let signer = await ethers5Adapter.signer.toEthers({
+      chain: baseSepolia,
+      client,
+      account
+    })
+
 
     return signer.sendTransaction({
-      to: ethers.utils.getAddress(state?.shippingAccount),
+      to: ethers.utils.getAddress("0x2E54D912361f6A4b1e57E239138Ff4C1344940Ae"),
       // value: ethers.utils.parseEther("0.001")
       value: amount,
     });
@@ -494,8 +500,8 @@ export default function Main() {
   const { t } = useTranslation();
 
   return (
-   
-      <Header> 
+
+    <Header>
       <Container>
         <CardWrapper>
           <div>
@@ -577,6 +583,6 @@ export default function Main() {
           ></Farming>
         )}
       </Container>
-      </Header>
+    </Header>
   );
 }

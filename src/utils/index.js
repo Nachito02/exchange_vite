@@ -42,7 +42,7 @@ const FACTORY_ADDRESS = getFactoryAddress();
 // export const ROUTER_ADDRESS = "0xFFeD3BecF54F233dBE134dECAae2b099c04EB8bc"
 
 //BASE SEPOLIA
-export const ROUTER_ADDRESS = "0x78e8874809e12ba3C23e33E2C071D41f78601324"
+export const ROUTER_ADDRESS = import.meta.env.VITE_ROUTER_ADDRESS;
 
 
 // denominated in bips
@@ -62,7 +62,7 @@ export const TOKEN_SYMBOLS = Object.keys(TOKEN_ADDRESSES).reduce((o, k) => {
   return o;
 }, {});
 
-export const currenciesNames = ["ETH", "USDC", "ARS", "EURS", "BRL", "CLP", "COP" ];
+export const currenciesNames = ["ETH", "USDC", "ARS", "EURS", "BRL", "CLP", "COP"];
 
 export const ERROR_CODES = [
   "INVALID_AMOUNT",
@@ -128,7 +128,7 @@ export function getCrowdsaleContract(crowdsaleAddress, library, account) {
 }
 
 export function getIsCrowdsaleOpen(crowdsaleAddress, library, account) {
-  
+
   return getCrowdsaleContract(
     crowdsaleAddress,
     CROWDSALE_ABI,
@@ -191,7 +191,7 @@ export async function getTokenAllowance(
   ) {
     throw Error(
       "Invalid 'address' or 'tokenAddress' or 'spenderAddress' parameter" +
-        `'${address}' or '${tokenAddress}' or '${spenderAddress}'.`
+      `'${address}' or '${tokenAddress}' or '${spenderAddress}'.`
     );
   }
 
@@ -207,7 +207,7 @@ export function amountFormatter(
   displayDecimals = 3,
   useLessThan = true
 ) {
-  
+
   if (
     baseDecimals > 18 ||
     displayDecimals > 18 ||
@@ -255,7 +255,7 @@ export function amountFormatter(
       else {
         const [wholeComponent, decimalComponent] = stringAmount.split(".");
         const roundUpAmount = minimumDisplayAmount.div(ethers.constants.Two);
-        const roundedDecimalComponent =BigNumber.from(decimalComponent.padEnd(baseDecimals, "0"))
+        const roundedDecimalComponent = BigNumber.from(decimalComponent.padEnd(baseDecimals, "0"))
           .add(roundUpAmount)
           .toString()
           .padStart(baseDecimals, "0")
@@ -335,11 +335,11 @@ export function getExchangeRate(inputValue, outputValue, invert = false) {
         .mul(factor)
         .div(outputValue)
         .mul(
-         BigNumber.from(10)
+          BigNumber.from(10)
             .pow(BigNumber.from(outputDecimals))
         )
         .div(
-         BigNumber.from(10)
+          BigNumber.from(10)
             .pow(BigNumber.from(inputDecimals))
         );
     } else {
@@ -347,11 +347,11 @@ export function getExchangeRate(inputValue, outputValue, invert = false) {
         .mul(factor)
         .div(inputValue)
         .mul(
-         BigNumber.from(10)
+          BigNumber.from(10)
             .pow(BigNumber.from(inputDecimals))
         )
         .div(
-         BigNumber.from(10)
+          BigNumber.from(10)
             .pow(BigNumber.from(outputDecimals))
         );
     }
