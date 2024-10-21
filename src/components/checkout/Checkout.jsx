@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { client } from "../../config/thirdwebClient";
-import { defineChain, optimismSepolia } from "thirdweb/chains";
+import { baseSepolia, defineChain, optimismSepolia } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import Connect from "./Connect";
 import Works from "./Works";
@@ -94,11 +94,12 @@ export default function Checkout({
   showConnect,
   showWorks,
   setShowWorks,
-  updateBalance
+  updateBalance,
+  setRefreshTrigger,
 }) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const account = useActiveAccount();
@@ -194,6 +195,7 @@ export default function Checkout({
             reserveWINESToken={reserveWINESToken}
             pending={pending}
             updateBalance={updateBalance}
+            setRefreshTrigger={setRefreshTrigger}
           />
         );
       } else {

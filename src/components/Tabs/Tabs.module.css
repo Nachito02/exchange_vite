@@ -1,0 +1,33 @@
+.tabs {
+    height: 120px;
+    margin: 8px 0;
+    padding: 0 8px;
+  }
+  
+  .tabs .container {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .tabsItem {
+    max-width: 180px;
+    flex: 1;
+    border-radius: 2px;
+    border: 2px solid #000000;
+    font-size: 1rem;
+    color: #000000;
+    text-align: center;
+    margin: 0 6px;
+    padding: 4px 1px;
+    cursor: pointer;
+  }
+  
+  .tabsItemActive {
+    border: solid 2px #000000;
+    background-color: var(--primary-text-color);
+    color: #ffffff;
+  }
+  

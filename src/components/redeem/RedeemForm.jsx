@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import styled from 'styled-components'
 import Select from 'react-select'
 import { useAppContext } from '../../context'
@@ -6,7 +6,7 @@ import Button from '../shared/Button'
 import { useTranslation } from 'react-i18next';
 import { ethers } from 'ethers'
 import { client } from "../../config/thirdwebClient";
-import { defineChain, optimismSepolia } from "thirdweb/chains";
+import { defineChain, baseSepolia } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import {
   amountFormatter,
@@ -15,7 +15,8 @@ import {
 import axios from 'axios';
 import { fetchCountries } from '../../utils/fetchCountries'
 import { ethers5Adapter } from 'thirdweb/adapters/ethers5'
-import {BigNumber} from 'ethers'
+import { BigNumber } from 'ethers'
+import { signMessage } from 'thirdweb/utils'
 const bot = 'beep-boop'
 const name = 'name'
 const line1 = 'line1'
@@ -61,7 +62,7 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
   const { t } = useTranslation();
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const account = useActiveAccount();
@@ -289,16 +290,34 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
         disabled={!canSign || shippingCostError}
         text={t('redeem.next')}
         type={'submit'}
-        onClick={event => {
-          const signer = library.getSigner()
+        onClick={async (event) => {
+          const signer = await ethers5Adapter.signer.toEthers({
+            client,
+            chain: baseSepolia,
+            account
+          });
+
+          
+
           const timestampToSign = Math.round(Date.now() / 1000)
           const formDataMessage = nameOrder.map(o => `${t(`${o}`)}: ${formState[o]}`).join('\n')
-          const autoMessage = `${t('redeem.address')}: ${account}\n${t('redeem.timestamp')}: ${timestampToSign}\n${t('redeem.numberBurned')}: ${actualNumberBurned}`
-          signer.signMessage(`${formDataMessage}\n${autoMessage}`).then(returnedSignature => {
-            formState.signature = returnedSignature
-            setUserForm(formState)
-            setHasConfirmedAddress(true)
+          const autoMessage = `${t('redeem.address')}: ${account?.address}\n${t('redeem.timestamp')}: ${timestampToSign}\n${t('redeem.numberBurned')}: ${actualNumberBurned}`
+
+
+          // signer.signMessage(`${formDataMessage}\n${autoMessage}`).then(returnedSignature => {
+          //   formState.signature = returnedSignature
+          //   setUserForm(formState)
+          //   setHasConfirmedAddress(true)
+          // })
+
+          await signMessage({
+            message: autoMessage,
+            account,
           })
+
+          setUserForm(formState)
+          setHasConfirmedAddress(true)
+
           event.preventDefault()
         }}
       />

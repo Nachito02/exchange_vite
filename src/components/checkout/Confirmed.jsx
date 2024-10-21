@@ -55,13 +55,14 @@ export default function Confirmed({ hash, type, amount, clearLastTransaction, cl
   const [state, setState] = useAppContext()
 
   function link(hash) {
-    switch(parseInt(state.networkId)) {
+    return `https://sepolia.basescan.org/tx/${hash}`
+    switch (parseInt(state.networkId)) {
       case 3:
-        return `https://ropsten.etherscan.io/tx/${hash}` 
+        return `https://sepolia.basescan.org//tx/${hash}`
       case 4:
-        return `https://rinkeby.etherscan.io/tx/${hash}` 
-        case 10:
-          return `https://optimistic.etherscan.io/tx/${hash}`	
+        return `https://rinkeby.etherscan.io/tx/${hash}`
+      case 10:
+        return `https://optimistic.etherscan.io/tx/${hash}`
       default:
         return `https://etherscan.io/tx/${hash}`
     }

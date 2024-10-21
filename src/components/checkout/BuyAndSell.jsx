@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { client } from "../../config/thirdwebClient";
-import { defineChain, optimismSepolia } from "thirdweb/chains";
+import { defineChain, baseSepolia } from "thirdweb/chains";
 import { ConnectButton, ConnectEmbed, TransactionButton, useActiveAccount, useReadContract } from "thirdweb/react";
 import { useTranslation } from "react-i18next";
 import Form from "./Form";
@@ -84,7 +84,6 @@ export function useCount() {
 }
 
 function getValidationErrorMessage(validationError) {
-  console.log(validationError?.code);
   if (!validationError) {
     return null;
   } else {
@@ -132,6 +131,7 @@ export default function BuyAndSell({
   setCurrentTransaction,
   currentTransactionHash,
   setShowConnect,
+  setRefreshTrigger
 }) {
   const [state] = useAppContext();
   // const { account, setConnector } = useWeb3Context();
@@ -179,17 +179,16 @@ export default function BuyAndSell({
   }
 
   function link(hash) {
+    return `https://sepolia.basescan.org/tx/${hash}`
     switch (parseInt(state.networkId)) {
       case 3:
-        return `https://ropsten.etherscan.io/tx/${hash}`;
+        return `https://sepolia.basescan.org//tx/${hash}`
       case 4:
-        return `https://rinkeby.etherscan.io/tx/${hash}`;
+        return `https://rinkeby.etherscan.io/tx/${hash}`
       case 10:
-        return `https://optimistic.etherscan.io/tx/${hash}`;
-      case 11155420:
-        return `https://optimistic.etherscan.io/tx/${hash}`;
+        return `https://optimistic.etherscan.io/tx/${hash}`
       default:
-        return `https://etherscan.io/tx/${hash}`;
+        return `https://etherscan.io/tx/${hash}`
     }
   }
 
@@ -221,6 +220,7 @@ export default function BuyAndSell({
         const { error: validationError, ...validationState } = validateSell(
           String(state.count)
         );
+        
         setSellValidationState(validationState);
         setValidationError(validationError || null);
 
@@ -255,9 +255,14 @@ export default function BuyAndSell({
     }
   }, [ready, crowdsaling, validateCrowdsale, state.count]);
 
-  const shouldRenderUnlock =
-    validationError &&
-    validationError.code === ERROR_CODES.INSUFFICIENT_ALLOWANCE;
+
+  let shouldRenderUnlock =
+  validationError &&
+  validationError.code === ERROR_CODES.INSUFFICIENT_ALLOWANCE;
+
+  // const [shouldRenderUnlock, setShouldRenderUnlock] = useState(shouldRenderUnlockBool)
+
+ 
 
   const errorMessage = getValidationErrorMessage(validationError);
 
@@ -335,55 +340,41 @@ export default function BuyAndSell({
     return t("wallet.not-available");
   }
 
-  const exchangeContractSelectedToken = useExchangeContract(state.tokenAddress);
 
   const routerContract = useRouterContract();
   const contract = getContract({
     client: client,
-    chain: optimismSepolia,
-    address: '0xFFeD3BecF54F233dBE134dECAae2b099c04EB8bc',
+    chain: baseSepolia,
+    address: import.meta.env.VITE_ROUTER_ADDRESS,
     abi: contractABI
   });
 
 
   const crowdsaleContract = getContract({
     client: client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
     address: state.crowdsaleAddress,
     abi: crowdsaleABI
   });
 
-  const tokenContractSelectedToken = getContract({
-    client: client,
-    chain: optimismSepolia,
-    address: state.tokenAddress,
-    abi: ERC20ABI
-  });
-
   const tokenContractWINES = getContract({
     client: client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
     address: state.tokenAddress,
     abi: ERC20ABI
 
   });
 
 
-  let wethAddress;
-  if (getNetworkId() === 11155420) {
-    wethAddress = "0x74A4A85C611679B73F402B36c0F84A7D2CcdFDa3"
-  } else if (getNetworkId() === 10) {
-    wethAddress = "0x4200000000000000000000000000000000000006"
-  } else if (getNetworkId() === 1) {
-    wethAddress = WETH[getNetworkId()].address
-  }
+  //base sepolia
+  let wethAddress = import.meta.env.VITE_WETH_ADDRESS;
 
   if (!account?.address) {
     return (
       <>
         <Wrapper>
           <ContentWrapper>
-            <ConnectButton client={client} chain={defineChain(optimismSepolia)}
+            <ConnectButton client={client} chain={defineChain(baseSepolia)}
               connectButton={{
                 label: 'Conectar Wallet',
                 style: {
@@ -404,7 +395,7 @@ export default function BuyAndSell({
   return (
     <Wrapper>
       <Header>
-        <ConnectButton client={client} chain={defineChain(optimismSepolia)} />
+        <ConnectButton client={client} chain={defineChain(baseSepolia)} />
         <Account
           ready={ready}
           dollarPrice={dollarPrice}
@@ -472,11 +463,18 @@ export default function BuyAndSell({
           </>
         )}
 
-        {console.log(tokenContractSelectedToken.address)
-        }
+
 
         {shouldRenderUnlock ? (
           <TransactionButton
+            onTransactionConfirmed={async (response) => {
+              if (response.status === "success") {
+                setCurrentTransaction(response.transactionHash, TRADE_TYPES.UNLOCK, undefined);
+                setRefreshTrigger((prev) => prev + 1);
+             
+                
+              }
+            }}
             transaction={() =>
               prepareContractCall({
                 contract: tokenContractWINES,
@@ -522,7 +520,7 @@ export default function BuyAndSell({
                   buyValidationState.outputValue
                 );
 
-                await notifyBuyer(state.apiUrl, state.count, account, state.email, state.winerie_id, state.name)
+                await notifyBuyer(state.apiUrl, state.count, account?.address, state.email, state.winerie_id, state.name)
               }
             }}
           >
@@ -552,7 +550,7 @@ export default function BuyAndSell({
                   state.tradeType,
                   sellValidationState.inputValue
                 );
-                await notifyBuyer(state.apiUrl, state.count, account, state.email, state.winerie_id, state.name
+                await notifyBuyer(state.apiUrl, state.count, account?.address, state.email, state.winerie_id, state.name
                 );
               }
 

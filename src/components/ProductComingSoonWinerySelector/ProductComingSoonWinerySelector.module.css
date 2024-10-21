@@ -1,0 +1,87 @@
+.card {
+    background-color: transparent;
+    border: none;
+  }
+  
+  .card > a {
+    text-decoration: none;
+    color: var(--primary-text-color);
+  }
+  
+  .card-img {
+    object-fit: cover;
+    height: 200px;
+  }
+  
+  @media (max-width: 575px) {
+    .card-img {
+      width: 100vw !important;
+      height: 300px !important;
+    }
+  }
+  
+  .card-img-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  @media (max-width: 575px) {
+    .card-img-overlay {
+      width: 100vw !important;
+      height: 300px !important;
+    }
+  }
+  
+  .card-img-overlay > p {
+    font-size: 1rem !important;
+    font-weight: 400;
+    padding: 6px 10px;
+    z-index: 999;
+    color: white;
+    border: 1.5px solid white;
+  }
+  
+  .card-body {
+    padding: 5px;
+    overflow: hidden;
+  }
+  
+  @media (max-width: 575px) {
+    .card-body > div {
+      width: 100% !important;
+      height: 300px;
+    }
+  }
+  
+  .coming-soon-title {
+    position: relative;
+  }
+  
+  .card-body h5 {
+    text-align: left;
+    padding: 10px 0 0 0;
+    font-size: 1.1rem;
+  }
+  
+  .card-body-img {
+    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.6);
+  }
+  
+  .card-winery {
+    width: 25% !important;
+  }
+  
+  @media (max-width: 840px) {
+    .card-winery {
+      width: 33% !important;
+    }
+  }
+
+  @media screen and (max-width: 575px) {
+    .card-winery {
+      width: 100% !important;
+    }
+    
+  }
+  

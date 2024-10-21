@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useTranslation } from 'react-i18next';
-import { defineChain, optimismSepolia } from "thirdweb/chains";
+import { defineChain, baseSepolia } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import Button from '../shared/Button'
 import { Controls } from './Redeem'
@@ -10,7 +10,7 @@ import { ethers5Adapter } from 'thirdweb/adapters/ethers5';
 export default function Connect({ setShowConnect, closeCheckout }) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: optimismSepolia,
+    chain: baseSepolia,
   });
 
   const account = useActiveAccount();
