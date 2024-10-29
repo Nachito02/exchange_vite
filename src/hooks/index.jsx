@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { client } from "../config/thirdwebClient";
-import { defineChain, baseSepolia } from "thirdweb/chains";
+import { defineChain, base } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import FACTORY_ABI from '../contracts/factory.json';
 import {
@@ -28,7 +28,7 @@ export function useCrowdsaleContract(
 ) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
   });
 
   const account = useActiveAccount();
@@ -49,7 +49,7 @@ export function useCrowdsaleContract(
 export function useTokenContract(tokenAddress, withSignerIfPossible = true) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
   });
 
   const account = useActiveAccount();
@@ -70,7 +70,7 @@ export function useTokenContract(tokenAddress, withSignerIfPossible = true) {
 export function useRouterContract(withSignerIfPossible = true) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
   });
 
   const account = useActiveAccount();
@@ -90,7 +90,7 @@ export function useRouterContract(withSignerIfPossible = true) {
 export function useExchangeContract(tokenAddress, withSignerIfPossible = true) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
   });
 
   const account = useActiveAccount();
@@ -130,7 +130,7 @@ export function usePairContract(tokenAddress, withSignerIfPossible = true) {
   const [pairAddress, setPairAddress] = useState(null); // Estado para guardar la dirección del par
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
   });
 
   const account = useActiveAccount();
@@ -208,7 +208,7 @@ export function useAddressBalance(address, tokenAddress,refreshTrigger) {
 
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
   });
 
   const [balance, setBalance] = useState();
@@ -340,7 +340,7 @@ export function useAddressAllowance(address, tokenAddress, spenderAddress,refres
 
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
   });
 
   const [allowance, setAllowance] = useState();

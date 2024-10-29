@@ -9,7 +9,7 @@ import Main from "./Main";
 
 import "../i18n";
 import { ThirdwebProvider } from "thirdweb/react";
-import { baseSepolia } from "thirdweb/chains";
+import { base } from "thirdweb/chains";
 
 class UniSwapModel extends DOMModel {
   @byAttrVal() title;
@@ -71,7 +71,7 @@ function UniSwap({
 
   const connectionManager = {
     defineChains: (chains) => {
-      chains.push(baseSepolia);
+      chains.push(base);
     },
   };
 

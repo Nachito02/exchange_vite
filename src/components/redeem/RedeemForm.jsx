@@ -6,7 +6,7 @@ import Button from '../shared/Button'
 import { useTranslation } from 'react-i18next';
 import { ethers } from 'ethers'
 import { client } from "../../config/thirdwebClient";
-import { defineChain, baseSepolia } from "thirdweb/chains";
+import { defineChain, base } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import {
   amountFormatter,
@@ -62,7 +62,7 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
   const { t } = useTranslation();
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
   });
 
   const account = useActiveAccount();
@@ -293,7 +293,7 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
         onClick={async (event) => {
           const signer = await ethers5Adapter.signer.toEthers({
             client,
-            chain: baseSepolia,
+            chain: base,
             account
           });
 

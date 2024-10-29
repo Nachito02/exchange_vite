@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { client } from "../../config/thirdwebClient";
-import { defineChain, baseSepolia } from "thirdweb/chains";
+import { defineChain, base } from "thirdweb/chains";
 import { ConnectButton, ConnectEmbed, TransactionButton, useActiveAccount, useReadContract } from "thirdweb/react";
 import { useTranslation } from "react-i18next";
 import Form from "./Form";
@@ -179,7 +179,7 @@ export default function BuyAndSell({
   }
 
   function link(hash) {
-    return `https://sepolia.basescan.org/tx/${hash}`
+    return `https://basescan.org/tx/${hash}`
     switch (parseInt(state.networkId)) {
       case 3:
         return `https://sepolia.basescan.org//tx/${hash}`
@@ -344,7 +344,7 @@ export default function BuyAndSell({
   const routerContract = useRouterContract();
   const contract = getContract({
     client: client,
-    chain: baseSepolia,
+    chain: base,
     address: import.meta.env.VITE_ROUTER_ADDRESS,
     abi: contractABI
   });
@@ -352,14 +352,14 @@ export default function BuyAndSell({
 
   const crowdsaleContract = getContract({
     client: client,
-    chain: baseSepolia,
+    chain: base,
     address: state.crowdsaleAddress,
     abi: crowdsaleABI
   });
 
   const tokenContractWINES = getContract({
     client: client,
-    chain: baseSepolia,
+    chain: base,
     address: state.tokenAddress,
     abi: ERC20ABI
 
@@ -374,7 +374,7 @@ export default function BuyAndSell({
       <>
         <Wrapper>
           <ContentWrapper>
-            <ConnectButton client={client} chain={defineChain(baseSepolia)}
+            <ConnectButton client={client} chain={defineChain(base)}
               connectButton={{
                 label: 'Conectar Wallet',
                 style: {
@@ -395,7 +395,7 @@ export default function BuyAndSell({
   return (
     <Wrapper>
       <Header>
-        <ConnectButton client={client} chain={defineChain(baseSepolia)} />
+        <ConnectButton client={client} chain={defineChain(base)} />
         <Account
           ready={ready}
           dollarPrice={dollarPrice}

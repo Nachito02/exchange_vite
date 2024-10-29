@@ -6,7 +6,7 @@ import { BigNumber, ethers } from "ethers";
 import { useTranslation } from "react-i18next";
 import { useActiveAccount } from "thirdweb/react";
 import { client } from "../config/thirdwebClient";
-import { baseSepolia } from "thirdweb/chains";
+import { base } from "thirdweb/chains";
 import {
   TOKEN_SYMBOLS, TOKEN_ADDRESSES, TRADE_TYPES, getExchangeRate, getCrowdsaleContract, calculateGasMargin, amountFormatter, getProviderOrSigner, getNetworkId,
 } from "../utils";
@@ -29,12 +29,12 @@ import Header from "./Header/Header";
 export default function Main() {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
 
   });
   const signer = ethers5Adapter.signer.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
     account: account
   })
 
@@ -439,7 +439,7 @@ export default function Main() {
 
   async function transferShippingCosts(amount) {
     let signer = await ethers5Adapter.signer.toEthers({
-      chain: baseSepolia,
+      chain: base,
       client,
       account
     })

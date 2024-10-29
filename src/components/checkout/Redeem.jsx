@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { client } from "../../config/thirdwebClient";
-import { defineChain, baseSepolia } from "thirdweb/chains";
+import { defineChain, base } from "thirdweb/chains";
 import { ConnectButton, TransactionButton, useActiveAccount } from "thirdweb/react";
 import axios from 'axios';
 import { useAppContext } from '../../context';
@@ -55,14 +55,14 @@ export default function Redeem({
 }) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: base,
   });
 
   const [state] = useAppContext()
 
   const tokenContract = getContract({
     client,
-    chain: baseSepolia,
+    chain: base,
     address: state.tokenAddress,
     abi: ERC20
   })
@@ -192,7 +192,7 @@ export default function Redeem({
   }, [userForm])
 
   function link(hash) {
-    return `https://sepolia.basescan.org/tx/${hash}`
+    return `https://basescan.org/tx/${hash}`
     switch (parseInt(state.networkId)) {
       case 3:
         return `https://sepolia.basescan.org//tx/${hash}`
@@ -263,7 +263,7 @@ export default function Redeem({
     } else if (!account?.address) {
       return (
         <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",width: "100%"}}>
-          <ConnectButton client={client} chain={defineChain(baseSepolia)}
+          <ConnectButton client={client} chain={defineChain(base)}
             connectButton={{
               label: 'Conectar Wallet',
               style: {

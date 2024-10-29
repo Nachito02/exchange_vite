@@ -55,7 +55,7 @@ export default function Confirmed({ hash, type, amount, clearLastTransaction, cl
   const [state, setState] = useAppContext()
 
   function link(hash) {
-    return `https://sepolia.basescan.org/tx/${hash}`
+    return `https://basescan.org/tx/${hash}`
     switch (parseInt(state.networkId)) {
       case 3:
         return `https://sepolia.basescan.org//tx/${hash}`
