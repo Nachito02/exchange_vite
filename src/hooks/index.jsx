@@ -158,7 +158,6 @@ export function usePairContract(tokenAddress, withSignerIfPossible = true) {
 
   return useMemo(() => {
     if (pairAddress) {
-      console.log(pairAddress, 'Pair Address Resolved');
       return getPairContract(
         pairAddress,
         library,
@@ -171,35 +170,47 @@ export function usePairContract(tokenAddress, withSignerIfPossible = true) {
 
 
 export function useReserves(pairContract) {
-  const [reserves, setReserves] = useState();
+  const [reserves, setReserves] = useState({ reserve0: null, reserve1: null });
+  const [token0, setToken0] = useState(null);
+  const [token1, setToken1] = useState(null);
 
   const updateReserves = useCallback(() => {
     if (!!pairContract) {
-
       pairContract
         .getReserves()
         .then((value) => {
-          setReserves(value);
+          setReserves({ reserve0: value[0], reserve1: value[1] });
         })
-        .catch((error) => {
-          setReserves(null);
+        .catch(() => {
+          setReserves({ reserve0: null, reserve1: null });
         });
+
+      pairContract
+        .token0()
+        .then(setToken0)
+        .catch(() => setToken0(null));
+      pairContract
+        .token1()
+        .then(setToken1)
+        .catch(() => setToken1(null));
+
       return () => {
-        setReserves();
+        setReserves({ reserve0: null, reserve1: null });
       };
     }
   }, [pairContract]);
 
   useEffect(() => {
-    return updateReserves();
+    updateReserves();
   }, [updateReserves]);
 
-  if (reserves) {
-    return reserves;
+  if (token0 && token1) {
+    return { reserves, token0, token1 };
   } else {
     return {
-      0: null,
-      1: null,
+      reserves: { reserve0: null, reserve1: null },
+      token0: null,
+      token1: null,
     };
   }
 }
@@ -214,7 +225,6 @@ export function useAddressBalance(address, tokenAddress,refreshTrigger) {
   const [balance, setBalance] = useState();
 
   const updateBalance = useCallback(() => {
-    console.log('denuev0 ejecutando sell');
 
     if (
       isAddress(address) &&

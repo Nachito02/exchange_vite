@@ -49,7 +49,6 @@ export default function Main() {
 
   const getProductList = async () => {
 
-    console.log(state);
 
 
     const productsWineries = await axiosClient.get('/token', {
@@ -57,10 +56,6 @@ export default function Main() {
     });
 
     const filterProduct = productsWineries.data.filter((product) => product.id === productId);
-
-    console.log(filterProduct, 'filter');
-
-    console.log(toString(filterProduct[0].year), 'year');
 
     setState((prevState) => ({
       ...prevState,
@@ -138,13 +133,20 @@ export default function Main() {
     refreshTrigger
   );
 
-  const reserveWINESETH = useReserves(pairMTBwETH)["0"];
-  const reserveWINESToken = useReserves(pairMTBwETH)["1"];
-
+  // const reserveWINESETH = useReserves(pairMTBwETH)["0"];
+  // const reserveWINESToken = useReserves(pairMTBwETH)["1"];
 
 
   // const reserveWINESETH = useReserves(pairMTBwETH)["1"];
   // const reserveWINESToken = useReserves(pairMTBwETH)["0"];
+
+  const { reserves, token0, token1 } = useReserves(pairMTBwETH);
+
+  const reserveWINESETH =
+    token0 === import.meta.env.VITE_WETH_ADDRESS ? reserves.reserve0 : reserves.reserve1;
+  const reserveWINESToken =
+    token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
+
 
 
   const {
@@ -166,14 +168,15 @@ export default function Main() {
     useState();
 
 
+  const [loadingPrice, setLoadingPrice] = useState(false);
 
   useEffect(() => {
     const fetchPriceAndSetState = async () => {
       try {
+     
         const usdPrice = await fetchPrice();
         const formatedUsdPrice = usdPrice.split('.')[0];
         const exchangeRateDAI = getExchangeRate(BigNumber.from(1), BigNumber.from(Number(formatedUsdPrice)));
-
 
         if (selectedTokenSymbol === TOKEN_SYMBOLS.ETH) {
           setUSDExchangeRateETH(exchangeRateDAI);
@@ -196,7 +199,7 @@ export default function Main() {
         console.log(error);
         setUSDExchangeRateETH();
         setUSDExchangeRateSelectedToken();
-      }
+      } 
     }
 
     fetchPriceAndSetState();
@@ -301,18 +304,23 @@ export default function Main() {
 
   //Pool price
   useEffect(() => {
-    try {
-      const WINESExchangeRateETH = getExchangeRate(
-        reserveWINESToken,
-        reserveWINESETH
-      );
-      setDollarPrice(
-        WINESExchangeRateETH.mul(USDExchangeRateETH).div(
-          BigNumber.from(10).pow(BigNumber.from(18))
-        )
-      );
-    } catch {
-      setDollarPrice();
+    if(USDExchangeRateETH, reserveWINESETH, reserveWINESToken) {
+      try {
+        setLoadingPrice(true);
+        const WINESExchangeRateETH = getExchangeRate(
+          reserveWINESToken,
+          reserveWINESETH
+        );
+        setDollarPrice(
+          WINESExchangeRateETH.mul(USDExchangeRateETH).div(
+            BigNumber.from(10).pow(BigNumber.from(18))
+          )
+        );
+      } catch (error) {
+        console.log(error);
+      }finally{
+        setLoadingPrice(false);
+      }
     }
   }, [USDExchangeRateETH, reserveWINESETH, reserveWINESToken]);
 
@@ -350,8 +358,6 @@ export default function Main() {
   // buy functionality
   const validateBuy = useCallback(
     (numberOfWINES) => {
-      console.log('aqui de nuevo');
-
       return validateBuyHelper(
         numberOfWINES,
         allowanceSelectedToken,
@@ -406,9 +412,6 @@ export default function Main() {
   // sell functionality
   const validateSell = useCallback(
     (numberOfWINES) => {
-
-      console.log('hola desde sell');
-
       return validateSellHelper(
         numberOfWINES,
         allowanceWINES,
@@ -522,14 +525,14 @@ export default function Main() {
                 }}
               ></InfoIcon>
             </Title>
-            {isCrowdsale && (
+            {isCrowdsale && !loadingPrice && (
               <CurrentPrice>
                 {crowdsaleExchangeRateUSD
                   ? `$${amountFormatter(crowdsaleExchangeRateUSD, 18, 2)} USDC`
                   : "$0.00"}
               </CurrentPrice>
             )}
-            {!isCrowdsale && (
+            {!isCrowdsale && !loadingPrice && (
               <CurrentPrice>
                 {dollarPrice
                   ? `$${amountFormatter(dollarPrice, 18, 2)} USDC`
@@ -575,6 +578,7 @@ export default function Main() {
           showWorks={showWorks}
           setShowWorks={setShowWorks}
           setRefreshTrigger={setRefreshTrigger}
+          loadingPrice={loadingPrice}
         />
         {showFarming && (
           <Farming
